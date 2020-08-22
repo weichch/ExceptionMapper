@@ -1,0 +1,30 @@
+<Project>
+  <!-- Common project properties -->
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <DebugType>pdbonly</DebugType>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Nullable>enable</Nullable>
+    <RootNamespace>RabbitSharp.ExceptionMapper</RootNamespace>
+    <OpenApiGenerateDocuments>false</OpenApiGenerateDocuments>
+  </PropertyGroup>
+
+  <!-- Packaging properties -->
+  <PropertyGroup>
+    <Version>1.0.0-preview.0.0</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <Authors>Wei Chen</Authors>
+    <PackageProjectUrl>https://github.com/weichch/ExceptionMapper</PackageProjectUrl>
+    <Copyright>Copyright © Wei Chen 2020</Copyright>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+  </PropertyGroup>
+
+  <!-- Pack icon & license -->
+  <ItemGroup>
+    <None Include="..\..\build\icon.png" Pack="true" PackagePath="\"/>
+    <None Include="..\..\..\LICENSE" Pack="true" PackagePath="\"/>
+  </ItemGroup>
+
+</Project>
