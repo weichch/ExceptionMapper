@@ -5,9 +5,11 @@ VisualStudioVersion = 16.0.30104.148
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RabbitSharp.ExceptionMapper.AspNetCore", "libraries\RabbitSharp.ExceptionMapper.AspNetCore\RabbitSharp.ExceptionMapper.AspNetCore.csproj", "{9F359F10-7889-41B4-AD0C-F388DF898E70}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RabbitSharp.ExceptionMapper.Test", "tests\RabbitSharp.ExceptionMapper.Test\RabbitSharp.ExceptionMapper.Test.csproj", "{60A49C83-6A4F-4135-8EA8-7D1E9A877CFB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RabbitSharp.ExceptionMapper.Test", "tests\RabbitSharp.ExceptionMapper.Test\RabbitSharp.ExceptionMapper.Test.csproj", "{60A49C83-6A4F-4135-8EA8-7D1E9A877CFB}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{7EA9E1FD-64D1-4AEB-AB3E-8D1A40060FAE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RabbitSharp.ExceptionMapper", "libraries\RabbitSharp.ExceptionMapper\RabbitSharp.ExceptionMapper.csproj", "{206CC2E1-8954-4BD1-9DE4-BC87E97FEBD4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,6 +25,10 @@ Global
 		{60A49C83-6A4F-4135-8EA8-7D1E9A877CFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{60A49C83-6A4F-4135-8EA8-7D1E9A877CFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{60A49C83-6A4F-4135-8EA8-7D1E9A877CFB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{206CC2E1-8954-4BD1-9DE4-BC87E97FEBD4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{206CC2E1-8954-4BD1-9DE4-BC87E97FEBD4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{206CC2E1-8954-4BD1-9DE4-BC87E97FEBD4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{206CC2E1-8954-4BD1-9DE4-BC87E97FEBD4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
