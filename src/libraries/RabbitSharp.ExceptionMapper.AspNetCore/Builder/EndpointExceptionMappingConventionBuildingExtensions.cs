@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using RabbitSharp.Diagnostics.AspNetCore;
 
@@ -11,45 +11,46 @@ namespace RabbitSharp.Diagnostics.Builder
     public static class EndpointExceptionMappingConventionBuildingExtensions
     {
         /// <summary>
-        /// Re-executes errored request in an alternative request pipeline when exception type is
-        /// <typeparamref name="TException"/>.
+        /// Maps exception of <typeparamref name="TException"/> to another exception mapping.
+        /// </summary>
+        /// <param name="options">The options.</param>
+        /// <param name="mappingDelegate">The exception mapping function to execute.</param>
+        /// <param name="tags">The user-defined tags on the mapping convention.</param>
+        /// <param name="order">The order of the mapping convention.</param>
+        public static EndpointExceptionHandlerOptions Map<TException>(
+            this EndpointExceptionHandlerOptions options,
+            EndpointExceptionMappingDelegate mappingDelegate,
+            IEnumerable<string>? tags = null,
+            int order = 0)
+        {
+            if (mappingDelegate == null)
+            {
+                throw new ArgumentNullException(nameof(mappingDelegate));
+            }
+
+            options.Conventions.AddParameterized<DelegateExceptionMappingConvention>(
+                tags, order, mappingDelegate);
+
+            return options;
+        }
+
+        /// <summary>
+        /// Maps exception of <typeparamref name="TException"/> to a request pipeline.
         /// </summary>
         /// <param name="options">The options.</param>
         /// <param name="requestDelegate">The request delegate to execute.</param>
         /// <param name="tags">The user-defined tags on the mapping convention.</param>
         /// <param name="order">The order of the mapping convention.</param>
-        public static EndpointExceptionHandlerOptions MapToRequestDelegate<TException>(
+        public static EndpointExceptionHandlerOptions MapToPipeline<TException>(
             this EndpointExceptionHandlerOptions options,
             RequestDelegate requestDelegate,
             IEnumerable<string>? tags = null,
             int order = 0)
-        {
-            options.Conventions.AddParameterized<DelegateExceptionMappingConvention>(
-                tags, order, ReExecuteRequestForExceptionType(requestDelegate));
-
-            return options;
-
-            static EndpointExceptionMappingDelegate ReExecuteRequestForExceptionType(
-                RequestDelegate requestDelegate)
-            {
-                return async (context, httpContext) =>
-                {
-                    if (!(context.Exception is TException))
-                    {
-                        return;
-                    }
-
-                    await requestDelegate(httpContext);
-                    if (!context.Result.IsHandled)
-                    {
-                        context.Result = ExceptionHandlingResult.Handled();
-                    }
-                };
-            }
-        }
+            => options.Map<TException>(EndpointExceptionMappingBuilder.MapToPipeline<TException>(
+                requestDelegate), tags, order);
 
         /// <summary>
-        /// Maps an exception of <typeparamref name="TException"/> to an HTTP response with specified status code.
+        /// Maps exception of <typeparamref name="TException"/> to an HTTP status code.
         /// </summary>
         /// <param name="options">The options.</param>
         /// <param name="statusCode">The result status code.</param>
@@ -60,42 +61,24 @@ namespace RabbitSharp.Diagnostics.Builder
             int statusCode,
             IEnumerable<string>? tags = null,
             int order = 0)
-            => options.MapToRequestDelegate<TException>(
-                httpContext =>
-                {
-                    httpContext.Response.StatusCode = statusCode;
-                    return Task.CompletedTask;
-                }, tags, order);
+            => options.Map<TException>(EndpointExceptionMappingBuilder.MapToStatusCode<TException>(
+                statusCode), tags, order);
 
         /// <summary>
-        /// Re-executes the request in an alternative request pipeline.
+        /// Maps exception of <typeparamref name="TException"/> to another endpoint at specified path.
         /// </summary>
         /// <param name="options">The options.</param>
-        /// <param name="path">The path at which the request is re-executed.</param>
+        /// <param name="pattern">The route pattern.</param>
+        /// <param name="routeValues">The route values.</param>
         /// <param name="tags">The user-defined tags on the mapping convention.</param>
         /// <param name="order">The order of the mapping convention.</param>
         public static EndpointExceptionHandlerOptions MapToPath<TException>(
             this EndpointExceptionHandlerOptions options,
-            PathString path,
+            string pattern,
+            object? routeValues = null,
             IEnumerable<string>? tags = null,
             int order = 0)
-        {
-            return options.MapToRequestDelegate<TException>(httpContext =>
-                ReExecuteRequestAtPath(httpContext, path), tags, order);
-
-            static async Task ReExecuteRequestAtPath(HttpContext httpContext, PathString newPath)
-            {
-                var feature = httpContext.Features.Get<IExceptionMappingFeature>();
-                httpContext.Request.Path = newPath;
-                try
-                {
-                    await feature.RequestPipeline(httpContext);
-                }
-                finally
-                {
-                    httpContext.Request.Path = feature.RequestPath;
-                }
-            }
-        }
+            => options.Map<TException>(EndpointExceptionMappingBuilder.MapToPath<TException>(
+                pattern, routeValues), tags, order);
     }
 }

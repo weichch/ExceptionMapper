@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using RabbitSharp.Diagnostics.AspNetCore;
@@ -17,30 +18,32 @@ namespace RabbitSharp.ExceptionMapper.Test.AspNetCore
         [Fact]
         public async Task ShouldHandleException()
         {
-            var expectedContent = Guid.NewGuid().ToString();
+            var randomString = Guid.NewGuid().ToString();
 
             HostBuilder.ConfigureWebHost(webHost =>
             {
                 webHost.ConfigureServices(ConfigureServices);
-                webHost.Configure(app => Configure(app, expectedContent));
+                webHost.Configure(app => Configure(app, randomString));
             });
             var client = await GetClientAsync();
 
-            var response = await client.GetAsync("/throw");
+            var response = await client.GetAsync("/throw/123");
             var content = await response.Content.ReadAsStringAsync();
 
             Assert.Equal(HttpStatusCode.PaymentRequired, response.StatusCode);
-            Assert.Equal(expectedContent, content);
+            Assert.Equal($"123:{randomString}", content);
         }
 
         private static void ConfigureServices(IServiceCollection services)
         {
+            services.AddControllers();
+
             services.AddExceptionMapping()
                 .AddEndpointResponse(scheme =>
                 {
                     scheme.MapToStatusCode<InvalidOperationException>(StatusCodes.Status402PaymentRequired);
-                    scheme.MapToPath<InvalidOperationException>("/error", tags: new[] {"content"});
-                    scheme.MapToRequestDelegate<InvalidOperationException>(async httpContext =>
+                    scheme.MapToPath<InvalidOperationException>("/error/{value}", tags: new[] {"content"});
+                    scheme.MapToPipeline<InvalidOperationException>(async httpContext =>
                     {
 
                     });
@@ -53,18 +56,25 @@ namespace RabbitSharp.ExceptionMapper.Test.AspNetCore
             app.UseRouting();
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapGet("/throw", async httpContext =>
+                endpoints.MapGet("/throw/{value:int}", async httpContext =>
                 {
                     await Task.Yield();
                     throw new InvalidOperationException(expectedMessage);
+
                 }).MapException("content");
 
-                endpoints.MapGet("/error", async httpContext =>
+                endpoints.MapGet("/error/{value:int}", async httpContext =>
                 {
                     var feature = httpContext.Features.Get<IExceptionMappingContextFeature>();
+                    var routeValues = httpContext.Features.Get<IRouteValuesFeature>().RouteValues;
+
                     httpContext.Response.StatusCode = StatusCodes.Status402PaymentRequired;
+                    await httpContext.Response.WriteAsync($"{routeValues["value"]}:");
                     await httpContext.Response.WriteAsync(feature.Context!.Exception.Message);
+
                 }).ExcludeFromExceptionMapping();
+
+                endpoints.MapControllers();
             });
         }
     }

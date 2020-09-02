@@ -13,7 +13,7 @@ namespace Microsoft.AspNetCore.Builder
     public static class EndpointExceptionMappingApplicationBuilderExtensions
     {
         /// <summary>
-        /// Adds exception mapping middleware to re-execute errored request in an alternative <see cref="RequestDelegate"/>.
+        /// Adds exception mapping middleware to re-execute request in an alternative request pipeline.
         /// </summary>
         /// <param name="app">The application builder.</param>
         public static IApplicationBuilder UseEndpointExceptionMapping(
@@ -24,7 +24,7 @@ namespace Microsoft.AspNetCore.Builder
             });
 
         /// <summary>
-        /// Adds exception mapping middleware to re-execute errored request in an alternative <see cref="RequestDelegate"/>.
+        /// Adds exception mapping middleware to re-execute request in an alternative request pipeline.
         /// </summary>
         /// <param name="app">The application builder.</param>
         /// <param name="mapper">The exception mapper to use.</param>
@@ -53,7 +53,7 @@ namespace Microsoft.AspNetCore.Builder
         }
 
         /// <summary>
-        /// Adds exception mapping middleware to re-execute errored request in an alternative <see cref="RequestDelegate"/>.
+        /// Adds exception mapping middleware to re-execute request in an alternative request pipeline.
         /// </summary>
         /// <param name="app">The application builder.</param>
         /// <param name="options">The settings for middleware.</param>

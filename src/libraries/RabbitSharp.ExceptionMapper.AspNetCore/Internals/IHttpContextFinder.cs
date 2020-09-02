@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-namespace RabbitSharp.Diagnostics.AspNetCore
+namespace RabbitSharp.Diagnostics.AspNetCore.Internals
 {
     /// <summary>
     /// Provides access to current <see cref="HttpContext"/> for the exception handling context.

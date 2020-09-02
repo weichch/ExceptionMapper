@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using RabbitSharp.Diagnostics.AspNetCore.Filters;
 
 namespace RabbitSharp.Diagnostics.AspNetCore
 {

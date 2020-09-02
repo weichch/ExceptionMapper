@@ -38,12 +38,6 @@ namespace RabbitSharp.Diagnostics
             => new ExceptionHandlingResult(ExceptionHandling.Return, null, result);
 
         /// <summary>
-        /// Returns a handled result which indicates that an exception handler does not handle the exception.
-        /// </summary>
-        public static ExceptionHandlingResult Skip()
-            => new ExceptionHandlingResult(ExceptionHandling.Skip, null, null);
-
-        /// <summary>
         /// Creates an instance of the result.
         /// </summary>
         /// <param name="handling">The exception handling strategy.</param>
@@ -82,10 +76,10 @@ namespace RabbitSharp.Diagnostics
         public Exception? SourceException => _sourceException?.SourceException;
 
         /// <summary>
-        /// Returns an result object. If <see cref="Handling"/> is set to <see cref="ExceptionHandling.Handled"/> or
-        /// <see cref="ExceptionHandling.Skip"/>, this method always returns <c>null</c>. If <see cref="Handling"/>
-        /// is set to <see cref="ExceptionHandling.Rethrow"/>, this method re-throws the <see cref="SourceException"/>.
-        /// If current result is not handled, this method throws <see cref="InvalidOperationException"/>.
+        /// Returns an result object. If <see cref="Handling"/> is set to <see cref="ExceptionHandling.Handled"/>,
+        /// this method always returns <c>null</c>. If <see cref="Handling"/> is set to <see cref="ExceptionHandling.Rethrow"/>,
+        /// this method re-throws the <see cref="SourceException"/>. If current result is not handled, this method
+        /// throws <see cref="InvalidOperationException"/>.
         /// </summary>
         /// <exception cref="InvalidOperationException">When current result is not in a returnable status.</exception>
         public object? GetResult()
@@ -95,7 +89,6 @@ namespace RabbitSharp.Diagnostics
                 switch (Handling)
                 {
                     case ExceptionHandling.Handled:
-                    case ExceptionHandling.Skip:
                     case ExceptionHandling.Return:
                         return _result;
                     case ExceptionHandling.Rethrow:

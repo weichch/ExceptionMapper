@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using RabbitSharp.Diagnostics.AspNetCore.Filters;
+using RabbitSharp.Diagnostics.AspNetCore.Internals;
 
 namespace RabbitSharp.Diagnostics.AspNetCore
 {
@@ -115,8 +115,9 @@ namespace RabbitSharp.Diagnostics.AspNetCore
 
             static ValueTask SkipHandler(ExceptionHandlingContext context, ILogger logger)
             {
-                logger.LogTrace("No endpoint or no required metadata. This handler will be skipped.");
-                context.Result = ExceptionHandlingResult.Skip();
+                logger.LogTrace("No endpoint or no required metadata.");
+                // The fastest route out is rethrowing the exception
+                context.Result = ExceptionHandlingResult.Rethrow(context.Exception);
                 return default;
             }
         }

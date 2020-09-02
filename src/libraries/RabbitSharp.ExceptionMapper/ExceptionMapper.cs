@@ -48,7 +48,7 @@ namespace RabbitSharp.Diagnostics
 
                     var handler = await _handlerProvider.GetHandlerAsync(scheme);
                     var result = await handler.HandleExceptionAsync(exception, context);
-                    if (result.IsHandled && result.Handling != ExceptionHandling.Skip)
+                    if (result.IsHandled)
                     {
                         return result;
                     }

@@ -1,5 +1,5 @@
 ﻿using System;
-using RabbitSharp.Diagnostics.AspNetCore.Filters;
+using RabbitSharp.Diagnostics.AspNetCore;
 
 namespace Microsoft.AspNetCore.Builder
 {
