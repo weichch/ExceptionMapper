@@ -13,35 +13,57 @@ namespace RabbitSharp.Diagnostics.AspNetCore
     public static class EndpointExceptionMappingBuilder
     {
         /// <summary>
-        /// Maps exception of <typeparamref name="TException"/> to another exception mapping.
+        /// Maps exception to an exception mapping function when exception handling context
+        /// meets criteria.
         /// </summary>
-        /// <typeparam name="TException">The type of the exception.</typeparam>
-        /// <param name="another">The mapping to run when exception type is <typeparamref name="TException"/>.</param>
-        public static EndpointExceptionMappingDelegate MapExceptionType<TException>(
-            EndpointExceptionMappingDelegate another)
+        /// <param name="predicate">The predicate function.</param>
+        /// <param name="mappingDelegate">The mapping to run when criteria met.</param>
+        public static EndpointExceptionMappingDelegate MapWhen(
+            Func<ExceptionHandlingContext, HttpContext, bool> predicate,
+            EndpointExceptionMappingDelegate mappingDelegate)
         {
-            if (another == null)
+            if (predicate == null)
             {
-                throw new ArgumentNullException(nameof(another));
+                throw new ArgumentNullException(nameof(predicate));
+            }
+
+            if (mappingDelegate == null)
+            {
+                throw new ArgumentNullException(nameof(mappingDelegate));
             }
 
             return (context, httpContext) =>
             {
-                if (!(context.Exception is TException))
+                if (predicate(context, httpContext))
                 {
-                    return Task.CompletedTask;
+                    return mappingDelegate(context, httpContext);
                 }
 
-                return another(context, httpContext);
+                return Task.CompletedTask;
             };
         }
 
         /// <summary>
-        /// Maps exception of <typeparamref name="TException"/> to a request pipeline.
+        /// Maps exception of <typeparamref name="TException"/> to an exception mapping function.
         /// </summary>
         /// <typeparam name="TException">The type of the exception.</typeparam>
+        /// <param name="mappingDelegate">The mapping to run when exception type is <typeparamref name="TException"/>.</param>
+        public static EndpointExceptionMappingDelegate MapExceptionType<TException>(
+            EndpointExceptionMappingDelegate mappingDelegate)
+        {
+            if (mappingDelegate == null)
+            {
+                throw new ArgumentNullException(nameof(mappingDelegate));
+            }
+
+            return MapWhen((context, _) => context.Exception is TException, mappingDelegate);
+        }
+
+        /// <summary>
+        /// Maps exception to a request pipeline.
+        /// </summary>
         /// <param name="pipeline">The request pipeline.</param>
-        public static EndpointExceptionMappingDelegate MapToPipeline<TException>(
+        public static EndpointExceptionMappingDelegate MapToPipeline(
             RequestDelegate pipeline)
         {
             if (pipeline == null)
@@ -49,25 +71,24 @@ namespace RabbitSharp.Diagnostics.AspNetCore
                 throw new ArgumentNullException(nameof(pipeline));
             }
 
-            return MapExceptionType<TException>(async (context, httpContext) =>
+            return async (context, httpContext) =>
             {
                 await pipeline(httpContext);
                 if (!context.Result.IsHandled)
                 {
                     context.Result = ExceptionHandlingResult.Handled();
                 }
-            });
+            };
         }
 
         /// <summary>
-        /// Maps exception of <typeparamref name="TException"/> to an HTTP status code.
+        /// Maps exception to an HTTP status code.
         /// </summary>
-        /// <typeparam name="TException">The type of the exception.</typeparam>
         /// <param name="statusCode">The response status code.</param>
-        public static EndpointExceptionMappingDelegate MapToStatusCode<TException>(
+        public static EndpointExceptionMappingDelegate MapToStatusCode(
             int statusCode)
         {
-            return MapToPipeline<TException>(httpContext =>
+            return MapToPipeline(httpContext =>
             {
                 httpContext.Response.StatusCode = statusCode;
                 return Task.CompletedTask;
@@ -75,16 +96,15 @@ namespace RabbitSharp.Diagnostics.AspNetCore
         }
 
         /// <summary>
-        /// Maps exception of <typeparamref name="TException"/> to another endpoint at specified path.
+        /// Maps exception to another endpoint at specified path.
         /// </summary>
-        /// <typeparam name="TException">The type of the exception.</typeparam>
         /// <param name="pattern">The route pattern.</param>
         /// <param name="routeValues">The route values.</param>
-        public static EndpointExceptionMappingDelegate MapToPath<TException>(
+        public static EndpointExceptionMappingDelegate MapToPath(
             string pattern,
             object? routeValues = null)
         {
-            return MapToPipeline<TException>(httpContext =>
+            return MapToPipeline(httpContext =>
                 RewriteRequestToPath(httpContext, pattern, routeValues));
 
             static async Task RewriteRequestToPath(

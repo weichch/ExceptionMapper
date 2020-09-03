@@ -8,7 +8,7 @@ namespace RabbitSharp.ExceptionMapper.Test.Core
     static class MapperTestHelper
     {
         public static IExceptionMapper CreateMapper(
-            Action<ExceptionMapperOptions>? configure = null,
+            Action<ExceptionMappingServicesOptions>? configure = null,
             Action<ExceptionMappingBuilder>? buildAction = null)
         {
             var serviceCollection = new ServiceCollection();

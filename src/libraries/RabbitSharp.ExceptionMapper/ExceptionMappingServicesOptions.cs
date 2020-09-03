@@ -4,22 +4,41 @@ using System.Collections.Generic;
 namespace RabbitSharp.Diagnostics
 {
     /// <summary>
-    /// An internal options type for exception mapping services.
+    /// Represents settings for exception mapping services.
     /// </summary>
-    class ExceptionMappingServicesOptions
+    public class ExceptionMappingServicesOptions
     {
+        private ExceptionMappingDelegate _fallbackHandler;
+
         /// <summary>
         /// Creates an instance of the options.
         /// </summary>
         public ExceptionMappingServicesOptions()
         {
-            SchemeRegistry = new Dictionary<string, ExceptionMappingSchemeRegistration>(StringComparer.Ordinal);
+            Schemes = new Dictionary<string, ExceptionMappingSchemeRegistration>(StringComparer.Ordinal);
+
+            // By default, unhandled exception is rethrown
+            _fallbackHandler = ctx =>
+            {
+                ctx.Result = ExceptionHandlingResult.Rethrow(ctx.Exception);
+                return default;
+            };
+        }
+
+        /// <summary>
+        /// Gets or sets a fallback exception handler which is invoked when no exception scheme
+        /// has successfully handled the exception.
+        /// </summary>
+        public ExceptionMappingDelegate FallbackExceptionHandler
+        {
+            get => _fallbackHandler;
+            set => _fallbackHandler = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         /// <summary>
         /// Returns all registered schemes.
         /// </summary>
-        public IDictionary<string, ExceptionMappingSchemeRegistration> SchemeRegistry { get; }
+        public IDictionary<string, ExceptionMappingSchemeRegistration> Schemes { get; }
 
         /// <summary>
         /// Registers a scheme.
@@ -27,13 +46,13 @@ namespace RabbitSharp.Diagnostics
         /// <param name="scheme">The scheme.</param>
         public void AddScheme(ExceptionMappingSchemeRegistration scheme)
         {
-            if (SchemeRegistry.ContainsKey(scheme.Name))
+            if (Schemes.ContainsKey(scheme.Name))
             {
                 throw new InvalidOperationException(
                     "An exception mapping scheme with the specified name has already been registered.");
             }
 
-            SchemeRegistry.Add(scheme.Name, scheme);
+            Schemes.Add(scheme.Name, scheme);
         }
     }
 }

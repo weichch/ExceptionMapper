@@ -35,7 +35,9 @@ namespace RabbitSharp.Diagnostics.AspNetCore.Internals
             // https://github.com/dotnet/aspnetcore/blob/master/src/Http/Routing/src/DefaultLinkGenerator.cs#L291
             var binder = _templateBinderFactory.Create(pattern);
             // Route values captured from previous endpoint
-            var ambientValues = httpContext.Features.Get<IExceptionMappingFeature>().RouteValues;
+            var ambientValues =
+                httpContext.Features.Get<IExceptionMappingFeature>().RouteValues
+                ?? EmptyRouteValues;
 
             var valuesResult = binder.GetValues(ambientValues, routeValues == null
                 ? EmptyRouteValues

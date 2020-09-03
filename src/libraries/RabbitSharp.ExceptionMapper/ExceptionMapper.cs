@@ -10,13 +10,13 @@ namespace RabbitSharp.Diagnostics
     /// </summary>
     class ExceptionMapper : IExceptionMapper
     {
-        private readonly ExceptionMapperOptions _options;
+        private readonly ExceptionMappingServicesOptions _options;
         private readonly IExceptionHandlerProvider _handlerProvider;
         private readonly IExceptionMappingSchemeProvider _schemeProvider;
         private readonly ILogger _logger;
 
         public ExceptionMapper(
-            IOptions<ExceptionMapperOptions> options,
+            IOptions<ExceptionMappingServicesOptions> options,
             IExceptionHandlerProvider handlerProvider,
             IExceptionMappingSchemeProvider schemeProvider,
             ILoggerFactory loggerFactory)

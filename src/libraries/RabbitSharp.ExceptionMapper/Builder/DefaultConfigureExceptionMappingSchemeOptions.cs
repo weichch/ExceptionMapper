@@ -11,7 +11,7 @@ namespace RabbitSharp.Diagnostics.Builder
     {
         public void PostConfigure(string name, TOptions options)
         {
-            options.Name = name;
+            options.SchemeName = name;
         }
     }
 }

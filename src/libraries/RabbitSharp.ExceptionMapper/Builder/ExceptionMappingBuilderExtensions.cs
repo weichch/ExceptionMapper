@@ -93,7 +93,7 @@ namespace RabbitSharp.Diagnostics.Builder
         public static ExceptionMappingBuilder AddScheme<TOptions, TConventionService, THandler>(
             this ExceptionMappingBuilder builder,
             string name)
-            where TOptions : ExceptionMappingSchemeOptions
+            where TOptions : ExceptionMappingSchemeOptions, new()
             where TConventionService : class
             where THandler : ExceptionHandler<TOptions, TConventionService>
             => builder.AddScheme<TOptions, TConventionService, THandler>(name, _ => { });
@@ -112,7 +112,7 @@ namespace RabbitSharp.Diagnostics.Builder
             this ExceptionMappingBuilder builder,
             string name,
             Action<TOptions> configure)
-            where TOptions : ExceptionMappingSchemeOptions
+            where TOptions : ExceptionMappingSchemeOptions, new()
             where TConventionService : class
             where THandler : ExceptionHandler<TOptions, TConventionService>
         {
@@ -181,7 +181,7 @@ namespace RabbitSharp.Diagnostics.Builder
             this ExceptionMappingBuilder builder,
             string name,
             params object[] parameters)
-            where TOptions : ExceptionMappingSchemeOptions
+            where TOptions : ExceptionMappingSchemeOptions, new()
             where TConventionService : class
             where THandler : ExceptionHandler<TOptions, TConventionService>
             => builder.AddParameterizedScheme<TOptions, TConventionService, THandler>(name, _ => { }, parameters);
@@ -203,7 +203,7 @@ namespace RabbitSharp.Diagnostics.Builder
             string name,
             Action<TOptions> configure,
             params object[] parameters)
-            where TOptions : ExceptionMappingSchemeOptions
+            where TOptions : ExceptionMappingSchemeOptions, new()
             where TConventionService : class
             where THandler : ExceptionHandler<TOptions, TConventionService>
         {
