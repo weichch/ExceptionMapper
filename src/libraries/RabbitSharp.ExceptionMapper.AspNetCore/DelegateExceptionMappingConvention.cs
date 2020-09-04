@@ -26,7 +26,7 @@ namespace RabbitSharp.Diagnostics.AspNetCore
         /// </summary>
         /// <param name="context">The HTTP context.</param>
         /// <param name="httpContext">The HTTP context.</param>
-        public Task ExecuteAsync(ExceptionHandlingContext context, HttpContext httpContext)
+        public virtual Task ExecuteAsync(ExceptionHandlingContext context, HttpContext httpContext)
             => _mappingDelegate(context, httpContext);
     }
 }

@@ -41,11 +41,23 @@ namespace RabbitSharp.ExceptionMapper.Test.AspNetCore
             services.AddExceptionMapping()
                 .AddEndpointResponse(scheme =>
                 {
-                    scheme.MapToStatusCode<InvalidOperationException>(StatusCodes.Status402PaymentRequired);
-                    scheme.MapToPath<InvalidOperationException>("/error/{value}", tags: new[] {"content"});
-                    scheme.MapToPipeline<InvalidOperationException>(async httpContext =>
+                    scheme.MapExceptions(conventions =>
                     {
+                        conventions.MapEndpointException<InvalidOperationException>()
+                            .ToStatusCode(StatusCodes.Status402PaymentRequired);
 
+                        conventions.MapEndpointException<InvalidOperationException>()
+                            .ToEndpoint("/error/{value}")
+                            .UseTags("my-tag");
+
+                        conventions.MapEndpointException<InvalidOperationException>()
+                            .ToRequestHandler(async httpContext =>
+                            {
+
+                            });
+
+                        // Map to default exception mapping
+                        conventions.MapEndpointException((context, httpContext) => false);
                     });
                 });
         }
@@ -61,7 +73,7 @@ namespace RabbitSharp.ExceptionMapper.Test.AspNetCore
                     await Task.Yield();
                     throw new InvalidOperationException(expectedMessage);
 
-                }).MapException("content");
+                }).MapException("my-tag");
 
                 endpoints.MapGet("/error/{value:int}", async httpContext =>
                 {
