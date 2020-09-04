@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing.Patterns;
@@ -56,6 +57,18 @@ namespace RabbitSharp.Diagnostics.AspNetCore
                     httpContext.Request.Path = feature.RequestPath;
                 }
             }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static RequestDelegate ToNamedExceptionHandler(string name)
+        {
+            throw new NotImplementedException();
+
+            return httpContext =>
+            {
+                httpContext.Response.StatusCode = statusCode;
+                return Task.CompletedTask;
+            };
         }
     }
 }

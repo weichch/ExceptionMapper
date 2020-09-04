@@ -89,5 +89,30 @@ namespace RabbitSharp.Diagnostics.Builder
             return builder.ToRequestHandler(
                 EndpointExceptionMappingFunctions.ToEndpoint(pattern, routeValues));
         }
+
+        /// <summary>
+        /// Maps exception to a named exception handler.
+        /// </summary>
+        /// <typeparam name="TBuilder">The type of the builder.</typeparam>
+        /// <param name="builder">The builder.</param>
+        /// <param name="name">The name of the exception handler.</param>
+        public static TBuilder ToNamedExceptionHandler<TBuilder>(
+            this TBuilder builder,
+            string name)
+            where TBuilder : IEndpointExceptionMappingConventionBuilder
+        {
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
+            if (name == null)
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+
+            return builder.ToRequestHandler(
+                EndpointExceptionMappingFunctions.ToNamedExceptionHandler(name));
+        }
     }
 }

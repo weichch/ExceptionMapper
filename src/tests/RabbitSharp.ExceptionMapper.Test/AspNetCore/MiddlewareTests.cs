@@ -56,6 +56,9 @@ namespace RabbitSharp.ExceptionMapper.Test.AspNetCore
 
                             });
 
+                        conventions.MapEndpointException<InvalidOperationException>()
+                            .ToNamedExceptionHandler("another-pipeline");
+
                         // Map to default exception mapping
                         conventions.MapEndpointException((context, httpContext) => false);
                     });
