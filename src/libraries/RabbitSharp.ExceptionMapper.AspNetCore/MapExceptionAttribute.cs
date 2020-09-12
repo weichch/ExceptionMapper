@@ -5,7 +5,7 @@ using System.Linq;
 namespace RabbitSharp.Diagnostics.AspNetCore
 {
     /// <summary>
-    /// Enables or disables exception mapping for an endpoint.
+    /// TODO: Enables or disables exception mapping for an endpoint.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
     public class MapExceptionAttribute : Attribute

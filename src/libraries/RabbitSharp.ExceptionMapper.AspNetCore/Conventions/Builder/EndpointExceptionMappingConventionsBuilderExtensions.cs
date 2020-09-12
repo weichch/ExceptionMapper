@@ -9,11 +9,11 @@ namespace RabbitSharp.Diagnostics.Builder
     public static class EndpointExceptionMappingConventionsBuilderExtensions
     {
         /// <summary>
-        /// Internal for now until implemented. Maps exception to an endpoint exception mapping convention.
+        /// TODO: Internal for now until implemented. Maps exception to an endpoint exception mapping convention.
         /// </summary>
         /// <param name="builder">The conventions builder.</param>
-        internal static EndpointExceptionMappingConventionBuilder MapEndpointException(
-            this ExceptionMappingConventionsBuilder builder)
+        internal static EndpointExceptionMappingConventionBuilder MapException(
+            this EndpointExceptionMappingConventionsBuilder builder)
         {
             if (builder == null)
             {
@@ -32,8 +32,8 @@ namespace RabbitSharp.Diagnostics.Builder
         /// </summary>
         /// <param name="builder">The conventions builder.</param>
         /// <param name="predicate">The function to determine whether exception mapping context meets criteria.</param>
-        public static PredicateEndpointExceptionMappingConventionBuilder MapEndpointException(
-            this ExceptionMappingConventionsBuilder builder,
+        public static EndpointExceptionMappingConventionBuilder MapException(
+            this EndpointExceptionMappingConventionsBuilder builder,
             Func<ExceptionHandlingContext, bool> predicate)
         {
             if (builder == null)
@@ -46,7 +46,7 @@ namespace RabbitSharp.Diagnostics.Builder
                 throw new ArgumentNullException(nameof(predicate));
             }
 
-            var mappingBuilder = new PredicateEndpointExceptionMappingConventionBuilder
+            var mappingBuilder = new EndpointExceptionMappingConventionBuilder
             {
                 Predicate = (context, _) => predicate(context)
             };
@@ -61,8 +61,8 @@ namespace RabbitSharp.Diagnostics.Builder
         /// </summary>
         /// <param name="builder">The conventions builder.</param>
         /// <param name="predicate">The function to determine whether exception mapping context meets criteria.</param>
-        public static PredicateEndpointExceptionMappingConventionBuilder MapEndpointException(
-            this ExceptionMappingConventionsBuilder builder,
+        public static EndpointExceptionMappingConventionBuilder MapException(
+            this EndpointExceptionMappingConventionsBuilder builder,
             Func<ExceptionHandlingContext, HttpContext, bool> predicate)
         {
             if (builder == null)
@@ -75,7 +75,7 @@ namespace RabbitSharp.Diagnostics.Builder
                 throw new ArgumentNullException(nameof(predicate));
             }
 
-            var mappingBuilder = new PredicateEndpointExceptionMappingConventionBuilder
+            var mappingBuilder = new EndpointExceptionMappingConventionBuilder
             {
                 Predicate = predicate
             };
@@ -90,17 +90,17 @@ namespace RabbitSharp.Diagnostics.Builder
         /// </summary>
         /// <typeparam name="TException">The type of exception to map.</typeparam>
         /// <param name="builder">The conventions builder.</param>
-        public static PredicateEndpointExceptionMappingConventionBuilder MapEndpointException<TException>(
-            this ExceptionMappingConventionsBuilder builder)
+        public static EndpointExceptionMappingConventionBuilder MapException<TException>(
+            this EndpointExceptionMappingConventionsBuilder builder)
         {
             if (builder == null)
             {
                 throw new ArgumentNullException(nameof(builder));
             }
 
-            var mappingBuilder = new PredicateEndpointExceptionMappingConventionBuilder
+            var mappingBuilder = new EndpointExceptionMappingConventionBuilder
             {
-                Predicate = (context, _) => context.Exception is TException
+                ExceptionType = typeof(TException)
             };
             builder.Add(mappingBuilder.Build);
 

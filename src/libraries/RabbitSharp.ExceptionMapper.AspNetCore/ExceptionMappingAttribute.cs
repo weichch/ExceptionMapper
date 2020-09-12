@@ -9,7 +9,7 @@ namespace RabbitSharp.Diagnostics.AspNetCore
     /// the values in <see cref="Tags"/> must be a subset of <see cref="MapExceptionAttribute.Tags"/>.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
-    public class ExceptionMappingAttribute : Attribute, IExceptionMappingMetadata
+    internal class ExceptionMappingAttribute : Attribute, IExceptionMappingMetadata
     {
         /// <summary>
         /// Creates an instance of the exception mapping convention.

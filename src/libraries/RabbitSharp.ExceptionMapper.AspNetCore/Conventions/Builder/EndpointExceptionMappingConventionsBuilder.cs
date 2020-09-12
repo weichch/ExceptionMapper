@@ -4,9 +4,9 @@ using System.Collections.Generic;
 namespace RabbitSharp.Diagnostics.Builder
 {
     /// <summary>
-    /// Represents builder of conventions.
+    /// Represents builder for endpoint exception mapping conventions.
     /// </summary>
-    public class ExceptionMappingConventionsBuilder
+    public class EndpointExceptionMappingConventionsBuilder : IExceptionMappingConventionsBuilder
     {
         private readonly List<Action<ExceptionMappingConventionCollection>> _conventionBuilders;
 
@@ -14,7 +14,7 @@ namespace RabbitSharp.Diagnostics.Builder
         /// Creates an instance of the builder.
         /// </summary>
         /// <param name="conventions">The conventions.</param>
-        public ExceptionMappingConventionsBuilder(ExceptionMappingConventionCollection conventions)
+        public EndpointExceptionMappingConventionsBuilder(ExceptionMappingConventionCollection conventions)
         {
             Conventions = conventions ?? throw new ArgumentNullException(nameof(conventions));
             _conventionBuilders = new List<Action<ExceptionMappingConventionCollection>>();

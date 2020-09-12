@@ -4,9 +4,9 @@ using Microsoft.AspNetCore.Routing.Patterns;
 namespace RabbitSharp.Diagnostics.AspNetCore
 {
     /// <summary>
-    /// Defines an exception mapping convention which maps exception of specified type to another endpoint at specified path.
+    /// TODO: Defines an exception mapping convention which maps exception of specified type to another endpoint at specified path.
     /// </summary>
-    public class MapExceptionToPathAttribute : Attribute, IExceptionMappingMetadata
+    internal class MapExceptionToPathAttribute : Attribute, IExceptionMappingMetadata
     {
         /// <summary>
         /// Creates an instance of the attribute.

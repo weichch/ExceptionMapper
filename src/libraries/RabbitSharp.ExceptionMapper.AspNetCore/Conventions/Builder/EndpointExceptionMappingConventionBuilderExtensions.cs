@@ -5,7 +5,7 @@ using RabbitSharp.Diagnostics.AspNetCore;
 namespace RabbitSharp.Diagnostics.Builder
 {
     /// <summary>
-    /// Provides extension methods to <see cref="IEndpointExceptionMappingConventionBuilder"/>
+    /// Provides extension methods to <see cref="EndpointExceptionMappingConventionBuilder"/>
     /// and implementer types.
     /// </summary>
     public static class EndpointExceptionMappingConventionBuilderExtensions
@@ -19,7 +19,7 @@ namespace RabbitSharp.Diagnostics.Builder
         public static TBuilder ToRequestHandler<TBuilder>(
             this TBuilder builder,
             RequestDelegate requestHandler)
-            where TBuilder : IEndpointExceptionMappingConventionBuilder
+            where TBuilder : EndpointExceptionMappingConventionBuilder
         {
             if (builder == null)
             {
@@ -52,7 +52,7 @@ namespace RabbitSharp.Diagnostics.Builder
         public static TBuilder ToStatusCode<TBuilder>(
             this TBuilder builder,
             int statusCode)
-            where TBuilder : IEndpointExceptionMappingConventionBuilder
+            where TBuilder : EndpointExceptionMappingConventionBuilder
         {
             if (builder == null)
             {
@@ -74,7 +74,7 @@ namespace RabbitSharp.Diagnostics.Builder
             this TBuilder builder,
             string pattern,
             object? routeValues = null)
-            where TBuilder : IEndpointExceptionMappingConventionBuilder
+            where TBuilder : EndpointExceptionMappingConventionBuilder
         {
             if (builder == null)
             {
@@ -91,15 +91,15 @@ namespace RabbitSharp.Diagnostics.Builder
         }
 
         /// <summary>
-        /// Maps exception to a named exception handler.
+        /// TODO: Internal for now until implemented. Maps exception to a named exception handler.
         /// </summary>
         /// <typeparam name="TBuilder">The type of the builder.</typeparam>
         /// <param name="builder">The builder.</param>
         /// <param name="name">The name of the exception handler.</param>
-        public static TBuilder ToNamedExceptionHandler<TBuilder>(
+        internal static TBuilder ToNamedExceptionHandler<TBuilder>(
             this TBuilder builder,
             string name)
-            where TBuilder : IEndpointExceptionMappingConventionBuilder
+            where TBuilder : EndpointExceptionMappingConventionBuilder
         {
             if (builder == null)
             {

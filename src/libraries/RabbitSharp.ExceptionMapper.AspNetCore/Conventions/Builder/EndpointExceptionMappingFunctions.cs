@@ -63,12 +63,6 @@ namespace RabbitSharp.Diagnostics.AspNetCore
         public static RequestDelegate ToNamedExceptionHandler(string name)
         {
             throw new NotImplementedException();
-
-            return httpContext =>
-            {
-                httpContext.Response.StatusCode = statusCode;
-                return Task.CompletedTask;
-            };
         }
     }
 }

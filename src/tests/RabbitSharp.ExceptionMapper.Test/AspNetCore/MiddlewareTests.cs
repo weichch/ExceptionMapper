@@ -31,7 +31,7 @@ namespace RabbitSharp.ExceptionMapper.Test.AspNetCore
             var content = await response.Content.ReadAsStringAsync();
 
             Assert.Equal(HttpStatusCode.PaymentRequired, response.StatusCode);
-            Assert.Equal($"123:{randomString}", content);
+            Assert.Equal($"123:xyz:{randomString}", content);
         }
 
         private static void ConfigureServices(IServiceCollection services)
@@ -41,26 +41,22 @@ namespace RabbitSharp.ExceptionMapper.Test.AspNetCore
             services.AddExceptionMapping()
                 .AddEndpointResponse(scheme =>
                 {
-                    scheme.MapExceptions(conventions =>
+                    //scheme.FallbackErrorResponseFactory;
+
+                    scheme.MapEndpointExceptions(conventions =>
                     {
-                        conventions.MapEndpointException<InvalidOperationException>()
+                        conventions.MapException<InvalidOperationException>()
                             .ToStatusCode(StatusCodes.Status402PaymentRequired);
 
-                        conventions.MapEndpointException<InvalidOperationException>()
-                            .ToEndpoint("/error/{value}")
+                        conventions.MapException<InvalidOperationException>()
+                            .ToEndpoint("/error/{value}/{custom}", new {custom = "xyz"})
                             .UseTags("my-tag");
 
-                        conventions.MapEndpointException<InvalidOperationException>()
+                        conventions.MapException<InvalidOperationException>()
                             .ToRequestHandler(async httpContext =>
                             {
-
+                                await Task.Yield();
                             });
-
-                        conventions.MapEndpointException<InvalidOperationException>()
-                            .ToNamedExceptionHandler("another-pipeline");
-
-                        // Map to default exception mapping
-                        conventions.MapEndpointException((context, httpContext) => false);
                     });
                 });
         }
@@ -78,13 +74,13 @@ namespace RabbitSharp.ExceptionMapper.Test.AspNetCore
 
                 }).MapException("my-tag");
 
-                endpoints.MapGet("/error/{value:int}", async httpContext =>
+                endpoints.MapGet("/error/{value:int}/{custom}", async httpContext =>
                 {
                     var feature = httpContext.Features.Get<IExceptionMappingContextFeature>();
                     var routeValues = httpContext.Features.Get<IRouteValuesFeature>().RouteValues;
 
                     httpContext.Response.StatusCode = StatusCodes.Status402PaymentRequired;
-                    await httpContext.Response.WriteAsync($"{routeValues["value"]}:");
+                    await httpContext.Response.WriteAsync($"{routeValues["value"]}:{routeValues["custom"]}:");
                     await httpContext.Response.WriteAsync(feature.Context!.Exception.Message);
 
                 }).ExcludeFromExceptionMapping();
