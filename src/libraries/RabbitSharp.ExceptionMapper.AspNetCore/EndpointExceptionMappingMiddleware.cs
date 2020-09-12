@@ -27,7 +27,6 @@ namespace RabbitSharp.Diagnostics.AspNetCore
             IApplicationBuilder app)
         {
             _options = options.Value;
-            _options.Schemes.Add(EndpointExceptionMappingDefaults.EndpointScheme);
             // Save the original next for exception mapping
             _next = next;
             _exceptionMappingPipeline = BuildExceptionMappingPipeline(this, app, next);
@@ -131,7 +130,7 @@ namespace RabbitSharp.Diagnostics.AspNetCore
             mappingContext.SchemeFilter = scheme => options.Schemes.Contains(scheme.Name);
 
             var mappingResult = await mapper.MapAsync(exception, mappingContext);
-            if (!mappingResult.IsHandled || mappingResult.Handling == ExceptionHandling.Return)
+            if (!mappingResult.IsHandledSuccessfully || mappingResult.Handling == ExceptionHandling.Return)
             {
                 // Can't return object from this middleware
                 // If the result was handled as returning object,

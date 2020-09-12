@@ -41,7 +41,7 @@ namespace Microsoft.AspNetCore.Builder
             }
 
             builder.Add(endpoint => endpoint.Metadata.Add(
-                new MapExceptionAttribute {Exclude = true}));
+                new ExcludeFromExceptionMappingAttribute()));
             return builder;
         }
     }

@@ -16,11 +16,5 @@ namespace RabbitSharp.Diagnostics.Builder
         /// Gets or sets the user-defined tags.
         /// </summary>
         public IEnumerable<string>? Tags { get; set; }
-
-        /// <summary>
-        /// Builds the exception mapping convention.
-        /// </summary>
-        /// <param name="conventions">The target conventions.</param>
-        void Build(ExceptionMappingConventionCollection conventions);
     }
 }

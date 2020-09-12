@@ -2,6 +2,7 @@
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing.Patterns;
 using Microsoft.Extensions.DependencyInjection;
 using RabbitSharp.Diagnostics.AspNetCore.Internals;
@@ -61,6 +62,13 @@ namespace RabbitSharp.Diagnostics.AspNetCore
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static RequestDelegate ToNamedExceptionHandler(string name)
+        {
+            throw new NotImplementedException();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static RequestDelegate ToProblemDetails(
+            Func<ExceptionHandlingContext, HttpContext, ProblemDetails> problemFactory)
         {
             throw new NotImplementedException();
         }

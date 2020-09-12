@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using RabbitSharp.Diagnostics;
+using RabbitSharp.Diagnostics.AspNetCore;
 
 namespace Microsoft.AspNetCore.Builder
 {
@@ -26,10 +27,10 @@ namespace Microsoft.AspNetCore.Builder
         public IExceptionMapper? Mapper { get; set; }
 
         /// <summary>
-        /// Gets a set of schemes to run from the middleware. By default, only default endpoint
-        /// exception mapping scheme will run. If additional schemes need to run, add the scheme
-        /// names to this collection.
+        /// Gets a set of schemes to run from the middleware. If custom name is used when configuring
+        /// endpoint exception mapping scheme, this collection must include the custom name. If default
+        /// name is used, this collection must include <see cref="EndpointExceptionMappingDefaults.EndpointScheme"/>.
         /// </summary>
-        public ISet<string> Schemes { get; set; }
+        public ISet<string> Schemes { get; }
     }
 }

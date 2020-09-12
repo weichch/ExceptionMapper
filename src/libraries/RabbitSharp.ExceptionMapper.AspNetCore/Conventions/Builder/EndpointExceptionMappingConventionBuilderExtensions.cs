@@ -1,5 +1,7 @@
 ﻿using System;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using RabbitSharp.Diagnostics.AspNetCore;
 
 namespace RabbitSharp.Diagnostics.Builder
@@ -113,6 +115,32 @@ namespace RabbitSharp.Diagnostics.Builder
 
             return builder.ToRequestHandler(
                 EndpointExceptionMappingFunctions.ToNamedExceptionHandler(name));
+        }
+
+        /// <summary>
+        /// TODO: Internal for now until implemented. Maps exception to an instance of <see cref="ProblemDetails"/>
+        /// and writes the instance to response.
+        /// </summary>
+        /// <typeparam name="TBuilder">The type of the builder.</typeparam>
+        /// <param name="builder">The builder.</param>
+        /// <param name="problemFactory">The problem details factory.</param>
+        internal static TBuilder ToProblemDetails<TBuilder>(
+            this TBuilder builder,
+            Func<ExceptionHandlingContext, HttpContext, ProblemDetails> problemFactory)
+            where TBuilder : EndpointExceptionMappingConventionBuilder
+        {
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
+            if (problemFactory == null)
+            {
+                throw new ArgumentNullException(nameof(problemFactory));
+            }
+
+            return builder.ToRequestHandler(
+                EndpointExceptionMappingFunctions.ToProblemDetails(problemFactory));
         }
     }
 }

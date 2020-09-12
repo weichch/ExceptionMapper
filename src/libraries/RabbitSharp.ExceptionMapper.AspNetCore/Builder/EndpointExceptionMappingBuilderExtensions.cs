@@ -15,7 +15,17 @@ namespace RabbitSharp.Diagnostics.Builder
         /// </summary>
         /// <param name="builder">The exception mapping builder.</param>
         public static ExceptionMappingBuilder AddEndpointResponse(this ExceptionMappingBuilder builder)
-            => builder.AddEndpointResponse(_ => { });
+            => builder.AddEndpointResponse(EndpointExceptionMappingDefaults.EndpointScheme, _ => { });
+
+        /// <summary>
+        /// Adds an exception mapping scheme which maps exception to HTTP response by convention.
+        /// </summary>
+        /// <param name="builder">The exception mapping builder.</param>
+        /// <param name="name">The name of the scheme.</param>
+        public static ExceptionMappingBuilder AddEndpointResponse(
+            this ExceptionMappingBuilder builder,
+            string name)
+            => builder.AddEndpointResponse(name, _ => { });
 
         /// <summary>
         /// Adds an exception mapping scheme which maps exception to HTTP response by convention.
@@ -25,11 +35,23 @@ namespace RabbitSharp.Diagnostics.Builder
         public static ExceptionMappingBuilder AddEndpointResponse(
             this ExceptionMappingBuilder builder,
             Action<EndpointExceptionHandlerOptions> configure)
+            => builder.AddEndpointResponse(EndpointExceptionMappingDefaults.EndpointScheme, configure);
+
+        /// <summary>
+        /// Adds an exception mapping scheme which maps exception to HTTP response by convention.
+        /// </summary>
+        /// <param name="builder">The exception mapping builder.</param>
+        /// <param name="name">The name of the scheme.</param>
+        /// <param name="configure">The action to configure the endpoint exception mapping scheme.</param>
+        public static ExceptionMappingBuilder AddEndpointResponse(
+            this ExceptionMappingBuilder builder,
+            string name,
+            Action<EndpointExceptionHandlerOptions> configure)
         {
             builder.Services.TryAddSingleton<IHttpContextFinder, HttpContextFinder>();
             builder.Services.TryAddSingleton<IRoutePatternFormatter, RoutePatternFormatter>();
             builder.AddScheme<EndpointExceptionHandlerOptions, IEndpointExceptionMappingConvention,
-                EndpointExceptionHandler>(EndpointExceptionMappingDefaults.EndpointScheme, configure);
+                EndpointExceptionHandler>(name, configure);
 
             return builder;
         }

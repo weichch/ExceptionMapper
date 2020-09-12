@@ -19,7 +19,7 @@ namespace RabbitSharp.Diagnostics.Builder
             Action<EndpointExceptionMappingConventionsBuilder> configure)
             where TOptions : EndpointExceptionHandlerOptions
             => options.MapExceptions(
-                new EndpointExceptionMappingConventionsBuilder(options.Conventions),
+                new EndpointExceptionMappingConventionsBuilder(options),
                 configure);
     }
 }

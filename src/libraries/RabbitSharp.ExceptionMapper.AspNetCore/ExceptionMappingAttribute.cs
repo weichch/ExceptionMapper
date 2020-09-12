@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace RabbitSharp.Diagnostics.AspNetCore
 {
     /// <summary>
-    /// Defines an exception mapping convention which filters conventions by tags based on exception type.
+    /// TODO: Defines an exception mapping convention which filters conventions by tags based on exception type.
     /// If <see cref="MapExceptionAttribute"/> is present and <see cref="MapExceptionAttribute.Tags"/> is not empty,
     /// the values in <see cref="Tags"/> must be a subset of <see cref="MapExceptionAttribute.Tags"/>.
     /// </summary>

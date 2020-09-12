@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using RabbitSharp.Diagnostics.AspNetCore;
 
 namespace RabbitSharp.Diagnostics.Builder
 {
@@ -13,17 +14,17 @@ namespace RabbitSharp.Diagnostics.Builder
         /// <summary>
         /// Creates an instance of the builder.
         /// </summary>
-        /// <param name="conventions">The conventions.</param>
-        public EndpointExceptionMappingConventionsBuilder(ExceptionMappingConventionCollection conventions)
+        /// <param name="options">The exception handler options.</param>
+        public EndpointExceptionMappingConventionsBuilder(EndpointExceptionHandlerOptions options)
         {
-            Conventions = conventions ?? throw new ArgumentNullException(nameof(conventions));
+            Options = options ?? throw new ArgumentNullException(nameof(options));
             _conventionBuilders = new List<Action<ExceptionMappingConventionCollection>>();
         }
 
         /// <summary>
-        /// Gets the conventions.
+        /// Gets the exception handler options.
         /// </summary>
-        public ExceptionMappingConventionCollection Conventions { get; }
+        public EndpointExceptionHandlerOptions Options { get; }
 
         /// <summary>
         /// Adds a convention builder.
@@ -44,9 +45,10 @@ namespace RabbitSharp.Diagnostics.Builder
         /// </summary>
         public void Build()
         {
+            var conventions = Options.Conventions;
             foreach (var conventionBuilder in _conventionBuilders)
             {
-                conventionBuilder(Conventions);
+                conventionBuilder(conventions);
             }
         }
     }

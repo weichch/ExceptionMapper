@@ -2,7 +2,6 @@
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Options;
 
 namespace RabbitSharp.Diagnostics.Builder
 {
@@ -116,15 +115,23 @@ namespace RabbitSharp.Diagnostics.Builder
             where TConventionService : class
             where THandler : ExceptionHandler<TOptions, TConventionService>
         {
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
+            if (name == null)
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+
             if (configure == null)
             {
                 throw new ArgumentNullException(nameof(configure));
             }
 
+            builder.Services.Configure<TOptions>(name, opt => opt.SchemeName = name);
             builder.AddScheme<THandler>(name);
-            builder.Services.TryAddEnumerable(ServiceDescriptor.Transient<
-                IPostConfigureOptions<TOptions>,
-                DefaultConfigureExceptionMappingSchemeOptions<TOptions>>());
             builder.Services.Configure(name, configure);
 
             return builder;
@@ -207,15 +214,28 @@ namespace RabbitSharp.Diagnostics.Builder
             where TConventionService : class
             where THandler : ExceptionHandler<TOptions, TConventionService>
         {
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
+            if (name == null)
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+
             if (configure == null)
             {
                 throw new ArgumentNullException(nameof(configure));
             }
 
+            if (parameters == null)
+            {
+                throw new ArgumentNullException(nameof(parameters));
+            }
+
+            builder.Services.Configure<TOptions>(name, opt => opt.SchemeName = name);
             builder.AddParameterizedScheme<THandler>(name, parameters);
-            builder.Services.TryAddEnumerable(ServiceDescriptor.Transient<
-                IPostConfigureOptions<TOptions>,
-                DefaultConfigureExceptionMappingSchemeOptions<TOptions>>());
             builder.Services.Configure(name, configure);
 
             return builder;

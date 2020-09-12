@@ -11,6 +11,22 @@ namespace RabbitSharp.Diagnostics.Builder
     /// </summary>
     public class EndpointExceptionMappingConventionBuilder : IExceptionMappingConventionBuilder
     {
+        
+
+        /// <summary>
+        /// Creates an instance of the builder.
+        /// </summary>
+        /// <param name="schemeName">The name of the exception mapping scheme.</param>
+        public EndpointExceptionMappingConventionBuilder(string schemeName)
+        {
+            SchemeName = schemeName ?? throw new ArgumentNullException(nameof(schemeName));
+        }
+
+        /// <summary>
+        /// Gets the name of the exception mapping scheme.
+        /// </summary>
+        public string SchemeName { get; }
+
         /// <summary>
         /// Gets or sets the order of the mapping convention.
         /// </summary>
@@ -27,6 +43,11 @@ namespace RabbitSharp.Diagnostics.Builder
         public Type? ExceptionType { get; set; }
 
         /// <summary>
+        /// The actual exception type.
+        /// </summary>
+        private Type ActualExceptionType => ExceptionType ?? typeof(Exception);
+
+        /// <summary>
         /// Gets or sets predicate function.
         /// </summary>
         public Func<ExceptionHandlingContext, HttpContext, bool>? Predicate { get; set; }
@@ -37,11 +58,6 @@ namespace RabbitSharp.Diagnostics.Builder
         public EndpointExceptionMappingDelegate? MappingDelegate { get; set; }
 
         /// <summary>
-        /// Gets or sets the convention instance.
-        /// </summary>
-        public IEndpointExceptionMappingConvention? Convention { get; set; }
-
-        /// <summary>
         /// Gets or sets the action to configure conventions.
         /// </summary>
         public Action<ExceptionMappingConventionCollection>? BuildAction { get; set; }
@@ -49,24 +65,26 @@ namespace RabbitSharp.Diagnostics.Builder
         /// <summary>
         /// Builds the exception mapping convention.
         /// </summary>
-        /// <param name="conventions">The target conventions.</param>
         public void Build(ExceptionMappingConventionCollection conventions)
         {
             ValidateBuild();
 
             if (MappingDelegate != null)
             {
-                var convention = DelegateExceptionMappingConvention.CreateConditional(
-                    MappingDelegate, ExceptionType, Predicate);
+                var predicateContext = new ConventionPredicateContext(ExceptionType, Predicate);
+                var convention = new DelegateExceptionMappingConvention(predicateContext.Wrap(MappingDelegate));
                 conventions.AddConvention(convention, Tags, Order);
             }
-            else if (Convention != null)
+            else if (BuildAction != null)
             {
-                conventions.AddConvention(Convention, Tags, Order);
+                BuildAction.Invoke(conventions);
             }
             else
             {
-                BuildAction?.Invoke(conventions);
+                // Use default convention
+                var predicateContext = new ConventionPredicateContext(ExceptionType, Predicate);
+                conventions.AddParameterized<DefaultExceptionMappingConventionConvention>(
+                    Tags, Order, SchemeName, predicateContext);
             }
         }
 
@@ -75,25 +93,14 @@ namespace RabbitSharp.Diagnostics.Builder
         /// </summary>
         private void ValidateBuild()
         {
-            var actualExceptionType = ExceptionType ?? typeof(Exception);
-
-            if (actualExceptionType != typeof(Exception) || Predicate != null)
+            if (ActualExceptionType != typeof(Exception) || Predicate != null)
             {
-                // Convention is conditional by exception type and predicate, must have mapping delegate.
-                if (MappingDelegate == null)
+                // Convention is conditional by exception type and predicate, must use mapping delegate.
+                if (BuildAction != null)
                 {
                     throw new InvalidOperationException(
                         "Mapping delegate must be set when either exception type or predicate function provided.");
                 }
-
-                return;
-            }
-
-            if (MappingDelegate == null 
-                && Convention == null 
-                && BuildAction == null)
-            {
-                throw new InvalidOperationException("No build method provided.");
             }
         }
     }

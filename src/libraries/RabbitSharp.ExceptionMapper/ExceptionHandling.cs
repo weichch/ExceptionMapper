@@ -19,5 +19,11 @@
         /// Indicates the exception mapper should return a specified result object.
         /// </summary>
         Return = 2,
+
+        /// <summary>
+        /// Indicates the exception cannot be handled in current context, and exception mapper
+        /// should proceed to other exception handlers.
+        /// </summary>
+        NoResult = 3,
     }
 }

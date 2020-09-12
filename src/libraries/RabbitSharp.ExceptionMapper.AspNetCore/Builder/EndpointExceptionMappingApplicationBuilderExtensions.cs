@@ -1,5 +1,5 @@
 ﻿using System;
-using Microsoft.AspNetCore.Http;
+using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using RabbitSharp.Diagnostics;
@@ -20,7 +20,8 @@ namespace Microsoft.AspNetCore.Builder
             this IApplicationBuilder app) =>
             app.UseEndpointExceptionMapping(new EndpointExceptionMappingOptions
             {
-                Mapper = app.ApplicationServices.GetRequiredService<IExceptionMapper>()
+                Mapper = app.ApplicationServices.GetRequiredService<IExceptionMapper>(),
+                Schemes = {EndpointExceptionMappingDefaults.EndpointScheme}
             });
 
         /// <summary>
@@ -28,15 +29,15 @@ namespace Microsoft.AspNetCore.Builder
         /// </summary>
         /// <param name="app">The application builder.</param>
         /// <param name="mapper">The exception mapper to use.</param>
-        /// <param name="additionalSchemes">The additional schemes to run.</param>
+        /// <param name="schemes">The schemes to run.</param>
         public static IApplicationBuilder UseEndpointExceptionMapping(
             this IApplicationBuilder app,
             IExceptionMapper? mapper,
-            params string[] additionalSchemes)
+            params string[] schemes)
         {
-            if (additionalSchemes == null)
+            if (schemes == null)
             {
-                throw new ArgumentNullException(nameof(additionalSchemes));
+                throw new ArgumentNullException(nameof(schemes));
             }
 
             var options = new EndpointExceptionMappingOptions
@@ -44,9 +45,16 @@ namespace Microsoft.AspNetCore.Builder
                 Mapper = mapper
             };
 
-            foreach (var scheme in additionalSchemes)
+            if (!schemes.Any())
             {
-                options.Schemes.Add(scheme);
+                options.Schemes.Add(EndpointExceptionMappingDefaults.EndpointScheme);
+            }
+            else
+            {
+                foreach (var scheme in schemes)
+                {
+                    options.Schemes.Add(scheme);
+                }
             }
 
             return app.UseEndpointExceptionMapping(options);

@@ -5,10 +5,13 @@ using System.Linq;
 namespace RabbitSharp.Diagnostics.AspNetCore
 {
     /// <summary>
-    /// TODO: Enables or disables exception mapping for an endpoint.
+    /// Enables exception mapping by selected conventions for the class or method. When selecting conventions,
+    /// if tags defined on a convention overlaps with the tags defined in this attribute, the convention is
+    /// selected. If multiple instances of the attribute applied, the convention must meet criteria for each
+    /// of the attributes.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
-    public class MapExceptionAttribute : Attribute
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
+    public class MapExceptionAttribute : Attribute, IExceptionMappingConventionFilter
     {
         /// <summary>
         /// Creates an instance of the attribute.
@@ -20,13 +23,9 @@ namespace RabbitSharp.Diagnostics.AspNetCore
         }
 
         /// <summary>
-        /// Gets a collection of tags for filtering exception mapping conventions.
+        /// Gets tags for filtering conventions. If this collection overlaps with tags on a convention,
+        /// the convention is selected.
         /// </summary>
         public ISet<string> Tags { get; }
-
-        /// <summary>
-        /// Indicates whether to exclude the endpoint from exception mapping.
-        /// </summary>
-        public bool Exclude { get; set; }
     }
 }

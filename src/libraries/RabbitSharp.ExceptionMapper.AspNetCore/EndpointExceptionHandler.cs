@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -87,37 +89,40 @@ namespace RabbitSharp.Diagnostics.AspNetCore
             {
                 // We only handle exception from an endpoint as we need to read
                 // user-defined configuration from endpoint
-                return SkipHandler(context, Logger);
+                return SkipHandler(context, Logger, "No endpoint found.");
             }
 
             // Configure as per metadata
-            var metadata = endpoint.Metadata.GetMetadata<MapExceptionAttribute>();
-            if (metadata == null)
+            var skipMetadata = endpoint.Metadata.GetMetadata<IExcludeFromExceptionMapping>();
+            if (skipMetadata != null)
+            {
+                return SkipHandler(context, Logger, "Endpoint is excluded.");
+            }
+
+            var filters = new List<IExceptionMappingConventionFilter>();
+            filters.AddRange(endpoint.Metadata.GetOrderedMetadata<IExceptionMappingConventionFilter>());
+
+            if (!filters.Any())
             {
                 if (!Options.ImplicitExceptionMapping)
                 {
-                    return SkipHandler(context, Logger);
+                    return SkipHandler(context, Logger, "Endpoint does not have exception mapping turned on.");
                 }
 
-                metadata = new MapExceptionAttribute();
-            }
-            else if (metadata.Exclude)
-            {
-                return SkipHandler(context, Logger);
+                filters.Add(new MapExceptionAttribute());
             }
 
             // Filter convention by metadata
-            context.ConventionFilter = convention =>
-                metadata.Tags.Count == 0
-                || convention.Tags.Overlaps(metadata.Tags);
+            context.ConventionFilter = CombineFilters(filters);
+
+            // TODO: Handle by conventions from metatdata
 
             return default;
 
-            static ValueTask SkipHandler(ExceptionHandlingContext context, ILogger logger)
+            static ValueTask SkipHandler(ExceptionHandlingContext context, ILogger logger, string reason)
             {
-                logger.LogTrace("No endpoint or no required metadata.");
-                // The fastest route out is rethrowing the exception
-                context.Result = ExceptionHandlingResult.Rethrow(context.Exception);
+                logger.LogTrace($"Skipping endpoint exception mapping. {reason}");
+                context.Result = ExceptionHandlingResult.NoResult();
                 return default;
             }
         }
@@ -171,6 +176,18 @@ namespace RabbitSharp.Diagnostics.AspNetCore
 
             await Options.FallbackErrorResponseFactory(httpContext);
             context.Result = ExceptionHandlingResult.Handled();
+        }
+
+        /// <summary>
+        /// Combines all filters.
+        /// </summary>
+        private static Func<ExceptionMappingConventionRegistration, bool> CombineFilters(
+            IEnumerable<IExceptionMappingConventionFilter> filters)
+        {
+            var allTags = filters.Select(filter => filter.Tags).ToArray();
+
+            return convention => allTags.All(tags =>
+                tags.Count == 0 || convention.Tags.Overlaps(tags));
         }
     }
 }

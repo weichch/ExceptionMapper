@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using RabbitSharp.Diagnostics.AspNetCore;
+using RabbitSharp.Diagnostics.AspNetCore.Conventions;
 using RabbitSharp.Diagnostics.Builder;
 using Xunit;
 
@@ -41,22 +42,26 @@ namespace RabbitSharp.ExceptionMapper.Test.AspNetCore
             services.AddExceptionMapping()
                 .AddEndpointResponse(scheme =>
                 {
-                    //scheme.FallbackErrorResponseFactory;
+                    scheme.DefaultConvention = new DelegateExceptionMappingConvention(
+                        (context, httpContext) => Task.CompletedTask);
 
                     scheme.MapEndpointExceptions(conventions =>
                     {
-                        conventions.MapException<InvalidOperationException>()
-                            .ToStatusCode(StatusCodes.Status402PaymentRequired);
+                        conventions.MapException(_ => true)
+                            .UseTags("my-tag", "my-tag3");
 
                         conventions.MapException<InvalidOperationException>()
-                            .ToEndpoint("/error/{value}/{custom}", new {custom = "xyz"})
-                            .UseTags("my-tag");
+                            .ToStatusCode(StatusCodes.Status402PaymentRequired);
 
                         conventions.MapException<InvalidOperationException>()
                             .ToRequestHandler(async httpContext =>
                             {
                                 await Task.Yield();
                             });
+
+                        conventions.MapException<InvalidOperationException>()
+                            .ToEndpoint("/error/{value}/{custom}", new { custom = "xyz" })
+                            .UseTags("my-tag", "my-tag3");
                     });
                 });
         }
@@ -72,7 +77,7 @@ namespace RabbitSharp.ExceptionMapper.Test.AspNetCore
                     await Task.Yield();
                     throw new InvalidOperationException(expectedMessage);
 
-                }).MapException("my-tag");
+                }).MapException("my-tag", "my-tag2").MapException("my-tag3");
 
                 endpoints.MapGet("/error/{value:int}/{custom}", async httpContext =>
                 {
