@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using RabbitSharp.Diagnostics.AspNetCore;
+using RabbitSharp.Diagnostics.AspNetCore.Formatting;
 using RabbitSharp.Diagnostics.AspNetCore.Internals;
 
 namespace RabbitSharp.Diagnostics.Builder
@@ -50,6 +51,8 @@ namespace RabbitSharp.Diagnostics.Builder
         {
             builder.Services.TryAddSingleton<IHttpContextFinder, HttpContextFinder>();
             builder.Services.TryAddSingleton<IRoutePatternFormatter, RoutePatternFormatter>();
+            builder.Services.TryAddSingleton<IProblemResponseWriterFactory, ProblemResponseWriterFactory>();
+
             builder.AddScheme<EndpointExceptionHandlerOptions, IEndpointExceptionMappingConvention,
                 EndpointExceptionHandler>(name, configure);
 

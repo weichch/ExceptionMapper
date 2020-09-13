@@ -3,11 +3,15 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Abstractions;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Patterns;
 using Microsoft.Extensions.DependencyInjection;
+using RabbitSharp.Diagnostics.AspNetCore;
+using RabbitSharp.Diagnostics.AspNetCore.Formatting;
 using RabbitSharp.Diagnostics.AspNetCore.Internals;
 
-namespace RabbitSharp.Diagnostics.AspNetCore
+namespace RabbitSharp.Diagnostics.Builder
 {
     /// <summary>
     /// Defines exception mapping functions.
@@ -43,8 +47,8 @@ namespace RabbitSharp.Diagnostics.AspNetCore
                 if (path == null)
                 {
                     // Unable to format route pattern, rethrow the exception
-                    var context = httpContext.Features.Get<IExceptionMappingContextFeature>().Context!;
-                    context.Result = ExceptionHandlingResult.Rethrow(context.Exception);
+                    var exceptionHandlingContext = httpContext.Features.Get<IExceptionMappingContextFeature>().Context!;
+                    exceptionHandlingContext.Result = ExceptionHandlingResult.Rethrow(exceptionHandlingContext.Exception);
                     return;
                 }
 
@@ -68,9 +72,38 @@ namespace RabbitSharp.Diagnostics.AspNetCore
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static RequestDelegate ToProblemDetails(
-            Func<ExceptionHandlingContext, HttpContext, ProblemDetails> problemFactory)
+            Func<ProblemDetailsCreationContext, ProblemDetails> problemFactory)
         {
-            throw new NotImplementedException();
+            return httpContext => WriteProblemDetails(httpContext, problemFactory);
+
+            static Task WriteProblemDetails(
+                HttpContext httpContext,
+                Func<ProblemDetailsCreationContext, ProblemDetails> problemFactory)
+            {
+                var exceptionHandlingContext = httpContext.Features.Get<IExceptionMappingContextFeature>().Context!;
+                var creationContext = new ProblemDetailsCreationContext(exceptionHandlingContext, httpContext);
+                var problem = problemFactory(creationContext);
+
+                // Create problem response writer
+                var problemResponseWriter = httpContext.RequestServices
+                    .GetRequiredService<IProblemResponseWriterFactory>()
+                    .Create(httpContext);
+
+                var writerContext = new ProblemResponseWriterContext(httpContext, problem);
+                var feature = httpContext.Features.Get<IExceptionMappingFeature>();
+                var endpoint = feature.Endpoint!;
+                var actionDescriptor = endpoint.Metadata.GetMetadata<ActionDescriptor>();
+
+                if (actionDescriptor != null)
+                {
+                    writerContext.ActionContext = new ActionContext(
+                        httpContext,
+                        new RouteData(feature.RouteValues ?? new RouteValueDictionary()),
+                        actionDescriptor);
+                }
+
+                return problemResponseWriter.WriteAsync(writerContext);
+            }
         }
     }
 }

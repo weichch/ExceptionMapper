@@ -74,6 +74,11 @@ namespace Microsoft.AspNetCore.Builder
                 throw new ArgumentNullException(nameof(options));
             }
 
+            if (!options.Schemes.Any())
+            {
+                options.Schemes.Add(EndpointExceptionMappingDefaults.EndpointScheme);
+            }
+
             app.UseMiddleware<EndpointExceptionMappingMiddleware>(
                 Options.Create(options),
                 app.New());

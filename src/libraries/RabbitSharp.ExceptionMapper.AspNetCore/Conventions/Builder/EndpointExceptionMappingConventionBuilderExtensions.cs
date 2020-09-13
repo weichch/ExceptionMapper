@@ -1,8 +1,6 @@
 ﻿using System;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
-using RabbitSharp.Diagnostics.AspNetCore;
 
 namespace RabbitSharp.Diagnostics.Builder
 {
@@ -118,15 +116,14 @@ namespace RabbitSharp.Diagnostics.Builder
         }
 
         /// <summary>
-        /// TODO: Internal for now until implemented. Maps exception to an instance of <see cref="ProblemDetails"/>
-        /// and writes the instance to response.
+        /// Maps exception to an instance of <see cref="ProblemDetails"/> and writes the instance to response.
         /// </summary>
         /// <typeparam name="TBuilder">The type of the builder.</typeparam>
         /// <param name="builder">The builder.</param>
         /// <param name="problemFactory">The problem details factory.</param>
-        internal static TBuilder ToProblemDetails<TBuilder>(
+        public static TBuilder ToProblemDetails<TBuilder>(
             this TBuilder builder,
-            Func<ExceptionHandlingContext, HttpContext, ProblemDetails> problemFactory)
+            Func<ProblemDetailsCreationContext, ProblemDetails> problemFactory)
             where TBuilder : EndpointExceptionMappingConventionBuilder
         {
             if (builder == null)
