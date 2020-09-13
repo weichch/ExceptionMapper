@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Patterns;
 using Microsoft.AspNetCore.Routing.Template;
 
-namespace RabbitSharp.Diagnostics.AspNetCore.Internals
+namespace RabbitSharp.Diagnostics.AspNetCore
 {
     /// <summary>
     /// Implements <see cref="IRoutePatternFormatter"/>.

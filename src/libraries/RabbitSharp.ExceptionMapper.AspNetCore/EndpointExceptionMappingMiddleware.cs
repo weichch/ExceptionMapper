@@ -23,13 +23,13 @@ namespace RabbitSharp.Diagnostics.AspNetCore
 
         public EndpointExceptionMappingMiddleware(
             RequestDelegate next,
-            IOptions<EndpointExceptionMappingOptions> options,
-            IApplicationBuilder app)
+            IOptions<EndpointExceptionMappingOptions> options)
         {
             _options = options.Value;
             // Save the original next for exception mapping
             _next = next;
-            _exceptionMappingPipeline = BuildExceptionMappingPipeline(this, app, next);
+            _exceptionMappingPipeline = BuildExceptionMappingPipeline(
+                this, _options.ApplicationBuilder, next);
         }
 
         public Task Invoke(HttpContext httpContext)
@@ -127,7 +127,6 @@ namespace RabbitSharp.Diagnostics.AspNetCore
 
             var mappingContext = new ExceptionMappingContext();
             mappingContext.SetHttpContext(httpContext);
-            mappingContext.SchemeFilter = scheme => options.Schemes.Contains(scheme.Name);
 
             var mappingResult = await mapper.MapAsync(exception, mappingContext);
             if (!mappingResult.IsHandledSuccessfully || mappingResult.Handling == ExceptionHandling.Return)

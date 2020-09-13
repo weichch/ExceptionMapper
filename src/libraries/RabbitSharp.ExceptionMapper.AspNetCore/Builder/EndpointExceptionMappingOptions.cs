@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using RabbitSharp.Diagnostics;
-using RabbitSharp.Diagnostics.AspNetCore;
+﻿using RabbitSharp.Diagnostics;
 
 namespace Microsoft.AspNetCore.Builder
 {
@@ -11,14 +8,6 @@ namespace Microsoft.AspNetCore.Builder
     public class EndpointExceptionMappingOptions
     {
         /// <summary>
-        /// Creates an instance of the options.
-        /// </summary>
-        public EndpointExceptionMappingOptions()
-        {
-            Schemes = new HashSet<string>(StringComparer.Ordinal);
-        }
-
-        /// <summary>
         /// Gets or sets the exception mapper to be used in the middleware. If this property is set to <c>null</c>,
         /// an instance of <see cref="IExceptionMapper"/> is created for each exception mapping. <see cref="IExceptionMapper"/>
         /// is usually expensive to create, therefore it is recommended to always provide a cached <see cref="IExceptionMapper"/>
@@ -27,10 +16,8 @@ namespace Microsoft.AspNetCore.Builder
         public IExceptionMapper? Mapper { get; set; }
 
         /// <summary>
-        /// Gets a set of schemes to run from the middleware. If custom name is used when configuring
-        /// endpoint exception mapping scheme, this collection must include the custom name. If default
-        /// name is used, this collection must include <see cref="EndpointExceptionMappingDefaults.EndpointScheme"/>.
+        /// Gets or sets the application builder.
         /// </summary>
-        public ISet<string> Schemes { get; }
+        public IApplicationBuilder ApplicationBuilder { get; set; } = null!;
     }
 }

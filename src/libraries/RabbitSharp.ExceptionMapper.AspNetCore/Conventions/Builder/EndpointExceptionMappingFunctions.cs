@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Routing.Patterns;
 using Microsoft.Extensions.DependencyInjection;
 using RabbitSharp.Diagnostics.AspNetCore;
 using RabbitSharp.Diagnostics.AspNetCore.Formatting;
-using RabbitSharp.Diagnostics.AspNetCore.Internals;
 
 namespace RabbitSharp.Diagnostics.Builder
 {

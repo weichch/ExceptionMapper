@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing.Patterns;
 
-namespace RabbitSharp.Diagnostics.AspNetCore.Internals
+namespace RabbitSharp.Diagnostics.AspNetCore
 {
     /// <summary>
     /// Defines type to format route pattern with route values.

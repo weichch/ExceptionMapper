@@ -41,11 +41,6 @@ namespace RabbitSharp.Diagnostics
             {
                 foreach (var scheme in _schemeProvider.GetSchemes())
                 {
-                    if (context.SchemeFilter?.Invoke(scheme) == false)
-                    {
-                        continue;
-                    }
-
                     var handler = await _handlerProvider.GetHandlerAsync(scheme);
                     var result = await handler.HandleExceptionAsync(exception, context);
                     if (result.IsHandledSuccessfully)

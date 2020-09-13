@@ -2,7 +2,6 @@
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using RabbitSharp.Diagnostics.AspNetCore;
 using RabbitSharp.Diagnostics.AspNetCore.Formatting;
-using RabbitSharp.Diagnostics.AspNetCore.Internals;
 
 namespace RabbitSharp.Diagnostics.Builder
 {

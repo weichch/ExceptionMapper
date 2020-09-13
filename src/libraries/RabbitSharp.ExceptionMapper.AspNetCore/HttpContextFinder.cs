@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace RabbitSharp.Diagnostics.AspNetCore.Internals
+namespace RabbitSharp.Diagnostics.AspNetCore
 {
     /// <summary>
     /// Implements <see cref="IHttpContextFinder"/>.

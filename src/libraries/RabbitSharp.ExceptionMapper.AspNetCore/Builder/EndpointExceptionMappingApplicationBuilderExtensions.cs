@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using RabbitSharp.Diagnostics;
@@ -21,7 +20,7 @@ namespace Microsoft.AspNetCore.Builder
             app.UseEndpointExceptionMapping(new EndpointExceptionMappingOptions
             {
                 Mapper = app.ApplicationServices.GetRequiredService<IExceptionMapper>(),
-                Schemes = {EndpointExceptionMappingDefaults.EndpointScheme}
+                ApplicationBuilder = app.New()
             });
 
         /// <summary>
@@ -29,33 +28,25 @@ namespace Microsoft.AspNetCore.Builder
         /// </summary>
         /// <param name="app">The application builder.</param>
         /// <param name="mapper">The exception mapper to use.</param>
-        /// <param name="schemes">The schemes to run.</param>
         public static IApplicationBuilder UseEndpointExceptionMapping(
             this IApplicationBuilder app,
-            IExceptionMapper? mapper,
-            params string[] schemes)
+            IExceptionMapper mapper)
         {
-            if (schemes == null)
+            if (app == null)
             {
-                throw new ArgumentNullException(nameof(schemes));
+                throw new ArgumentNullException(nameof(app));
+            }
+
+            if (mapper == null)
+            {
+                throw new ArgumentNullException(nameof(mapper));
             }
 
             var options = new EndpointExceptionMappingOptions
             {
-                Mapper = mapper
+                Mapper = mapper,
+                ApplicationBuilder = app.New()
             };
-
-            if (!schemes.Any())
-            {
-                options.Schemes.Add(EndpointExceptionMappingDefaults.EndpointScheme);
-            }
-            else
-            {
-                foreach (var scheme in schemes)
-                {
-                    options.Schemes.Add(scheme);
-                }
-            }
 
             return app.UseEndpointExceptionMapping(options);
         }
@@ -69,19 +60,19 @@ namespace Microsoft.AspNetCore.Builder
             this IApplicationBuilder app,
             EndpointExceptionMappingOptions options)
         {
+            if (app == null)
+            {
+                throw new ArgumentNullException(nameof(app));
+            }
+
             if (options == null)
             {
                 throw new ArgumentNullException(nameof(options));
             }
 
-            if (!options.Schemes.Any())
-            {
-                options.Schemes.Add(EndpointExceptionMappingDefaults.EndpointScheme);
-            }
-
+            options.ApplicationBuilder ??= app;
             app.UseMiddleware<EndpointExceptionMappingMiddleware>(
-                Options.Create(options),
-                app.New());
+                Options.Create(options));
 
             return app;
         }
