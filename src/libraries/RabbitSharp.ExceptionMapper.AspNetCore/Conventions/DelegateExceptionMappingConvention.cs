@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
-namespace RabbitSharp.Diagnostics.AspNetCore
+namespace RabbitSharp.Diagnostics.AspNetCore.Conventions
 {
     /// <summary>
     /// Represents an exception mapping convention which delegates exception handling to
@@ -26,7 +26,7 @@ namespace RabbitSharp.Diagnostics.AspNetCore
         /// </summary>
         /// <param name="context">The HTTP context.</param>
         /// <param name="httpContext">The HTTP context.</param>
-        public Task ExecuteAsync(ExceptionHandlingContext context, HttpContext httpContext)
+        public virtual Task ExecuteAsync(ExceptionHandlingContext context, HttpContext httpContext)
             => _mappingDelegate(context, httpContext);
     }
 }

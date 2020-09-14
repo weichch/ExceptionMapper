@@ -10,13 +10,13 @@ namespace RabbitSharp.Diagnostics
     /// </summary>
     class ExceptionMapper : IExceptionMapper
     {
-        private readonly ExceptionMapperOptions _options;
+        private readonly ExceptionMappingServicesOptions _options;
         private readonly IExceptionHandlerProvider _handlerProvider;
         private readonly IExceptionMappingSchemeProvider _schemeProvider;
         private readonly ILogger _logger;
 
         public ExceptionMapper(
-            IOptions<ExceptionMapperOptions> options,
+            IOptions<ExceptionMappingServicesOptions> options,
             IExceptionHandlerProvider handlerProvider,
             IExceptionMappingSchemeProvider schemeProvider,
             ILoggerFactory loggerFactory)
@@ -41,14 +41,9 @@ namespace RabbitSharp.Diagnostics
             {
                 foreach (var scheme in _schemeProvider.GetSchemes())
                 {
-                    if (context.SchemeFilter?.Invoke(scheme) == false)
-                    {
-                        continue;
-                    }
-
                     var handler = await _handlerProvider.GetHandlerAsync(scheme);
                     var result = await handler.HandleExceptionAsync(exception, context);
-                    if (result.IsHandled && result.Handling != ExceptionHandling.Skip)
+                    if (result.IsHandledSuccessfully)
                     {
                         return result;
                     }

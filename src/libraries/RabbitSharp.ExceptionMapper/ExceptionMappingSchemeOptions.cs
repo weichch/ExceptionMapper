@@ -20,12 +20,12 @@ namespace RabbitSharp.Diagnostics
         }
 
         /// <summary>
-        /// Gets or sets name of the scheme using this options object.
+        /// Gets the name of the scheme.
         /// </summary>
-        public string Name
+        public string SchemeName
         {
             get => _name;
-            set => _name = value ?? throw new ArgumentNullException(nameof(value));
+            internal set => _name = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         /// <summary>

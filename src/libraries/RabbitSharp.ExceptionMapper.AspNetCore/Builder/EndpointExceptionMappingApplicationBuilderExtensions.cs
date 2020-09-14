@@ -1,5 +1,4 @@
 ﻿using System;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using RabbitSharp.Diagnostics;
@@ -13,47 +12,47 @@ namespace Microsoft.AspNetCore.Builder
     public static class EndpointExceptionMappingApplicationBuilderExtensions
     {
         /// <summary>
-        /// Adds exception mapping middleware to re-execute errored request in an alternative <see cref="RequestDelegate"/>.
+        /// Adds exception mapping middleware to re-execute request in an alternative request pipeline.
         /// </summary>
         /// <param name="app">The application builder.</param>
         public static IApplicationBuilder UseEndpointExceptionMapping(
             this IApplicationBuilder app) =>
             app.UseEndpointExceptionMapping(new EndpointExceptionMappingOptions
             {
-                Mapper = app.ApplicationServices.GetRequiredService<IExceptionMapper>()
+                Mapper = app.ApplicationServices.GetRequiredService<IExceptionMapper>(),
+                ApplicationBuilder = app.New()
             });
 
         /// <summary>
-        /// Adds exception mapping middleware to re-execute errored request in an alternative <see cref="RequestDelegate"/>.
+        /// Adds exception mapping middleware to re-execute request in an alternative request pipeline.
         /// </summary>
         /// <param name="app">The application builder.</param>
         /// <param name="mapper">The exception mapper to use.</param>
-        /// <param name="additionalSchemes">The additional schemes to run.</param>
         public static IApplicationBuilder UseEndpointExceptionMapping(
             this IApplicationBuilder app,
-            IExceptionMapper? mapper,
-            params string[] additionalSchemes)
+            IExceptionMapper mapper)
         {
-            if (additionalSchemes == null)
+            if (app == null)
             {
-                throw new ArgumentNullException(nameof(additionalSchemes));
+                throw new ArgumentNullException(nameof(app));
+            }
+
+            if (mapper == null)
+            {
+                throw new ArgumentNullException(nameof(mapper));
             }
 
             var options = new EndpointExceptionMappingOptions
             {
-                Mapper = mapper
+                Mapper = mapper,
+                ApplicationBuilder = app.New()
             };
-
-            foreach (var scheme in additionalSchemes)
-            {
-                options.Schemes.Add(scheme);
-            }
 
             return app.UseEndpointExceptionMapping(options);
         }
 
         /// <summary>
-        /// Adds exception mapping middleware to re-execute errored request in an alternative <see cref="RequestDelegate"/>.
+        /// Adds exception mapping middleware to re-execute request in an alternative request pipeline.
         /// </summary>
         /// <param name="app">The application builder.</param>
         /// <param name="options">The settings for middleware.</param>
@@ -61,14 +60,19 @@ namespace Microsoft.AspNetCore.Builder
             this IApplicationBuilder app,
             EndpointExceptionMappingOptions options)
         {
+            if (app == null)
+            {
+                throw new ArgumentNullException(nameof(app));
+            }
+
             if (options == null)
             {
                 throw new ArgumentNullException(nameof(options));
             }
 
+            options.ApplicationBuilder ??= app;
             app.UseMiddleware<EndpointExceptionMappingMiddleware>(
-                Options.Create(options),
-                app.New());
+                Options.Create(options));
 
             return app;
         }

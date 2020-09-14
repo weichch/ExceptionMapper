@@ -20,7 +20,11 @@ namespace RabbitSharp.ExceptionMapper.Test.Core.Mapper
         public async Task ShouldReturnNullIfSuppressDefault()
         {
             var mapper = MapperTestHelper.CreateMapper(opt =>
-                opt.FallbackExceptionHandler = async ctx => ctx.Result = ExceptionHandlingResult.Return(null));
+                opt.FallbackExceptionHandler = async ctx =>
+                {
+                    await Task.Yield();
+                    ctx.Result = ExceptionHandlingResult.Return(null);
+                });
 
             var result = await mapper.MapExceptionAsync(new Exception());
 

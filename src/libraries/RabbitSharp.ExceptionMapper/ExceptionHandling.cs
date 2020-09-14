@@ -21,8 +21,9 @@
         Return = 2,
 
         /// <summary>
-        /// Indicates the exception mapping scheme should not continue.
+        /// Indicates the exception cannot be handled in current context, and exception mapper
+        /// should proceed to other exception handlers.
         /// </summary>
-        Skip = 3
+        NoResult = 3,
     }
 }

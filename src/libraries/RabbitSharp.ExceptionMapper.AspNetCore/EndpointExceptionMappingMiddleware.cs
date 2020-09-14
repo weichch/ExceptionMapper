@@ -15,24 +15,32 @@ namespace RabbitSharp.Diagnostics.AspNetCore
     /// <summary>
     /// Represents a middleware for exception mapping.
     /// </summary>
-    class EndpointExceptionMappingMiddleware
+    public class EndpointExceptionMappingMiddleware
     {
         private readonly EndpointExceptionMappingOptions _options;
         private readonly RequestDelegate _exceptionMappingPipeline;
         private readonly RequestDelegate _next;
 
+        /// <summary>
+        /// Creates an instance of the middleware.
+        /// </summary>
+        /// <param name="next">The next request handler in the pipeline.</param>
+        /// <param name="options">The middleware settings.</param>
         public EndpointExceptionMappingMiddleware(
             RequestDelegate next,
-            IOptions<EndpointExceptionMappingOptions> options,
-            IApplicationBuilder app)
+            IOptions<EndpointExceptionMappingOptions> options)
         {
             _options = options.Value;
-            _options.Schemes.Add(EndpointExceptionMappingDefaults.EndpointScheme);
             // Save the original next for exception mapping
             _next = next;
-            _exceptionMappingPipeline = BuildExceptionMappingPipeline(this, app, next);
+            _exceptionMappingPipeline = BuildExceptionMappingPipeline(
+                this, _options.ApplicationBuilder, next);
         }
 
+        /// <summary>
+        /// Executes request in exception mapping pipeline.
+        /// </summary>
+        /// <param name="httpContext">The HTTP context.</param>
         public Task Invoke(HttpContext httpContext)
             => _exceptionMappingPipeline(httpContext);
 
@@ -128,10 +136,9 @@ namespace RabbitSharp.Diagnostics.AspNetCore
 
             var mappingContext = new ExceptionMappingContext();
             mappingContext.SetHttpContext(httpContext);
-            mappingContext.SchemeFilter = scheme => options.Schemes.Contains(scheme.Name);
 
             var mappingResult = await mapper.MapAsync(exception, mappingContext);
-            if (!mappingResult.IsHandled || mappingResult.Handling == ExceptionHandling.Return)
+            if (!mappingResult.IsHandledSuccessfully || mappingResult.Handling == ExceptionHandling.Return)
             {
                 // Can't return object from this middleware
                 // If the result was handled as returning object,

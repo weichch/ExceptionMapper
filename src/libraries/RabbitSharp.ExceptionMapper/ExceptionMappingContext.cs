@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace RabbitSharp.Diagnostics
 {
@@ -20,10 +19,5 @@ namespace RabbitSharp.Diagnostics
         /// Gets the data on the context.
         /// </summary>
         public IDictionary<object, object> Data { get; }
-
-        /// <summary>
-        /// Gets or sets predicate to filter schemes to run.
-        /// </summary>
-        public Func<ExceptionMappingSchemeRegistration, bool>? SchemeFilter { get; set; }
     }
 }

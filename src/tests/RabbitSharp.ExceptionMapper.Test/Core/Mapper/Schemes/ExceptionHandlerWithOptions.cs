@@ -32,7 +32,7 @@ namespace RabbitSharp.ExceptionMapper.Test.Core.Mapper.Schemes
                 return ExceptionHandlingResult.Return(_result);
             }
 
-            return ExceptionHandlingResult.Skip();
+            return default;
         }
     }
 }

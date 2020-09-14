@@ -13,7 +13,7 @@ namespace RabbitSharp.Diagnostics
     /// <typeparam name="TOptions">The user-defined options type.</typeparam>
     /// <typeparam name="TConventionService">The mapping convention service type.</typeparam>
     public abstract class ExceptionHandler<TOptions, TConventionService> : IExceptionHandler
-        where TOptions : ExceptionMappingSchemeOptions
+        where TOptions : ExceptionMappingSchemeOptions, new()
         where TConventionService : class
     {
         private readonly IOptionsMonitor<TOptions> _optionsManager;
@@ -123,7 +123,7 @@ namespace RabbitSharp.Diagnostics
             }
 
             Logger.LogTrace("Running exception handler '{Name}' of type '{HandlerType}'.",
-                Options.Name, GetType().FullName);
+                Options.SchemeName, GetType().FullName);
 
             var handlingContext = new ExceptionHandlingContext(exception, mappingContext);
             return HandleExceptionAsync(handlingContext);

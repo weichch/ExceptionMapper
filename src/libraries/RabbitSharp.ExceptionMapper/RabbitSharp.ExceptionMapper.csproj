@@ -1,7 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
+  <PropertyGroup Condition="'$(PackageType)'=='stable'">
+    <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(PackageType)'!='stable'">
     <TargetFrameworks>netstandard2.0;netstandard2.1;net5.0</TargetFrameworks>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <PackageId>RabbitSharp.ExceptionMapper</PackageId>
     <PackageTags>exception;mapper;aspnetcore;.net;core;handler</PackageTags>
     <Description>Provides ability to create exception handler with strongly-typed settings and conventions using dependency injection.</Description>

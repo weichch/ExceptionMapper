@@ -27,7 +27,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="configure">The action to configure exception mapping options.</param>
         public static ExceptionMappingBuilder AddExceptionMapping(
             this IServiceCollection serviceCollection,
-            Action<ExceptionMapperOptions> configure)
+            Action<ExceptionMappingServicesOptions> configure)
         {
             if (serviceCollection == null)
             {

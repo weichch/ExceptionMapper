@@ -18,7 +18,7 @@ namespace RabbitSharp.Diagnostics
 
         public IEnumerable<ExceptionMappingSchemeRegistration> GetSchemes()
         {
-            return _mappingOptions.SchemeRegistry.Values;
+            return _mappingOptions.Schemes.Values;
         }
 
         public ExceptionMappingSchemeRegistration? GetScheme(string name)
@@ -28,7 +28,7 @@ namespace RabbitSharp.Diagnostics
                 throw new ArgumentNullException(nameof(name));
             }
 
-            _mappingOptions.SchemeRegistry.TryGetValue(name, out var result);
+            _mappingOptions.Schemes.TryGetValue(name, out var result);
             return result;
         }
     }
