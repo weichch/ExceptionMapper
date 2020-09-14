@@ -128,6 +128,8 @@ class MyController : Controller
 
 ### Use ASP.NET Core Middleware
 
+The `EndpointExceptionMappingMiddleware` extends default `ExceptionHandlerMiddleware` in ASP.NET Core and enables ability to re-execute request in alternative pipeline by convention.
+
 ```csharp
 void Configure(IApplicationBuilder app)
 {

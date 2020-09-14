@@ -15,12 +15,17 @@ namespace RabbitSharp.Diagnostics.AspNetCore
     /// <summary>
     /// Represents a middleware for exception mapping.
     /// </summary>
-    class EndpointExceptionMappingMiddleware
+    public class EndpointExceptionMappingMiddleware
     {
         private readonly EndpointExceptionMappingOptions _options;
         private readonly RequestDelegate _exceptionMappingPipeline;
         private readonly RequestDelegate _next;
 
+        /// <summary>
+        /// Creates an instance of the middleware.
+        /// </summary>
+        /// <param name="next">The next request handler in the pipeline.</param>
+        /// <param name="options">The middleware settings.</param>
         public EndpointExceptionMappingMiddleware(
             RequestDelegate next,
             IOptions<EndpointExceptionMappingOptions> options)
@@ -32,6 +37,10 @@ namespace RabbitSharp.Diagnostics.AspNetCore
                 this, _options.ApplicationBuilder, next);
         }
 
+        /// <summary>
+        /// Executes request in exception mapping pipeline.
+        /// </summary>
+        /// <param name="httpContext">The HTTP context.</param>
         public Task Invoke(HttpContext httpContext)
             => _exceptionMappingPipeline(httpContext);
 
