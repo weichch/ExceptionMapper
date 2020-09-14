@@ -1,5 +1,7 @@
 # ExceptionMapper
 
+[![Build status](https://ci.appveyor.com/api/projects/status/g7bnt6o9s2vb6hwq?svg=true)](https://ci.appveyor.com/project/weichch/exceptionmapper)
+
 ExceptionMapper is an extension of _Microsoft.Extensions.DependencyInjection_ which provides ability to build exception handler with strongly-typed settings and conventions.
 
 ExceptionMapper is licensed under the MIT license, so you can feel free to use it in your projects.
@@ -17,7 +19,7 @@ Also available via console commands:
 
 ## Basic Usage
 
-Add exception mapping and mapping schemes (exception handler) to your dependency injection container, and then use `IExceptionMapper` in your services.
+Add exception mapping and mapping schemes (exception handlers) to your dependency injection container, and then use `IExceptionMapper` in your services.
 
 ### Add to Container
 
@@ -66,7 +68,7 @@ services.AddExceptionMapping()
 
 ### Filter Conventions
 
-You can use custom tags to filter conventions. For example, for ASP.NET Core scheme, you could filter conventions using `MapExceptionAttribute`:
+You can use custom tags to filter conventions. For example, for ASP.NET Core scheme, you can filter conventions using `MapExceptionAttribute`:
 
 ```csharp
 services.AddExceptionMapping()
@@ -99,7 +101,7 @@ class MyController : Controller
 ### Use `IExceptionMapper`
 
 ```csharp
-// Inject IExceptionMapper into controller and handle exception
+// Inject IExceptionMapper into controller and handle exception manually
 class MyController : Controller
 {
     private readonly IExceptionMapper _exceptionMapper;
@@ -144,7 +146,7 @@ void Configure(IApplicationBuilder app)
 
 ### Features
 
-- Map to named routes
+- Map to named route
 - Map to named request pipeline
 - Define mapping via metadata attributes
 - Exception filter attributes using `IExceptionMapper`
