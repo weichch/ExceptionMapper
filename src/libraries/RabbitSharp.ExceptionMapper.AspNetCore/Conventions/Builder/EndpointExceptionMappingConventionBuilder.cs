@@ -11,8 +11,6 @@ namespace RabbitSharp.Diagnostics.Builder
     /// </summary>
     public class EndpointExceptionMappingConventionBuilder : IExceptionMappingConventionBuilder
     {
-        
-
         /// <summary>
         /// Creates an instance of the builder.
         /// </summary>
@@ -43,11 +41,6 @@ namespace RabbitSharp.Diagnostics.Builder
         public Type? ExceptionType { get; set; }
 
         /// <summary>
-        /// The actual exception type.
-        /// </summary>
-        private Type ActualExceptionType => ExceptionType ?? typeof(Exception);
-
-        /// <summary>
         /// Gets or sets predicate function.
         /// </summary>
         public Func<ExceptionHandlingContext, HttpContext, bool>? Predicate { get; set; }
@@ -67,41 +60,31 @@ namespace RabbitSharp.Diagnostics.Builder
         /// </summary>
         public void Build(ExceptionMappingConventionCollection conventions)
         {
-            ValidateBuild();
-
-            if (MappingDelegate != null)
-            {
-                var predicateContext = new ConventionPredicateContext(ExceptionType, Predicate);
-                var convention = new DelegateExceptionMappingConvention(predicateContext.Wrap(MappingDelegate));
-                conventions.AddConvention(convention, Tags, Order);
-            }
-            else if (BuildAction != null)
+            if (BuildAction != null)
             {
                 BuildAction.Invoke(conventions);
+            }
+            else if (MappingDelegate != null)
+            {
+                var predicateContext = CreateConventionPredicateContext();
+                var convention = new DelegateExceptionMappingConvention(predicateContext.Wrap(MappingDelegate));
+                conventions.AddConvention(convention, Tags, Order);
             }
             else
             {
                 // Use default convention
-                var predicateContext = new ConventionPredicateContext(ExceptionType, Predicate);
+                var predicateContext = CreateConventionPredicateContext();
                 conventions.AddParameterized<DefaultExceptionMappingConventionConvention>(
                     Tags, Order, SchemeName, predicateContext);
             }
         }
 
         /// <summary>
-        /// Validates the builder and throws if the builder has conflicts.
+        /// Creates an instance of <see cref="ConventionPredicateContext"/>.
         /// </summary>
-        private void ValidateBuild()
+        public ConventionPredicateContext CreateConventionPredicateContext()
         {
-            if (ActualExceptionType != typeof(Exception) || Predicate != null)
-            {
-                // Convention is conditional by exception type and predicate, must use mapping delegate.
-                if (BuildAction != null)
-                {
-                    throw new InvalidOperationException(
-                        "Mapping delegate must be set when either exception type or predicate function provided.");
-                }
-            }
+            return new ConventionPredicateContext(ExceptionType, Predicate);
         }
     }
 }

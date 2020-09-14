@@ -8,32 +8,28 @@ namespace RabbitSharp.Diagnostics.AspNetCore.Conventions
     /// <summary>
     /// Executes the default exception mapping convention.
     /// </summary>
-    class DefaultExceptionMappingConventionConvention : IEndpointExceptionMappingConvention
+    class DefaultExceptionMappingConventionConvention : ConditionalExceptionMappingConvention
     {
         private readonly EndpointExceptionHandlerOptions _options;
-        private readonly ConventionPredicateContext _predicateContext;
 
         public DefaultExceptionMappingConventionConvention(
             IOptionsMonitor<EndpointExceptionHandlerOptions> options,
             string schemeName,
             ConventionPredicateContext predicateContext)
+            : base(predicateContext)
         {
             _options = options.Get(schemeName);
-            _predicateContext = predicateContext;
         }
 
-        public Task ExecuteAsync(ExceptionHandlingContext context, HttpContext httpContext)
+        protected override Task OnExecutionAsync(ExceptionHandlingContext context, HttpContext httpContext)
         {
             var convention = _options.DefaultConvention;
-
-            if (convention != null
-                && (!_predicateContext.HasConditions
-                    || _predicateContext.CanHandleException(context, httpContext)))
+            if (convention == null)
             {
-                return convention.ExecuteAsync(context, httpContext);
+                return Task.CompletedTask;
             }
 
-            return Task.CompletedTask;
+            return convention.ExecuteAsync(context, httpContext);
         }
     }
 }

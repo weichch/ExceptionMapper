@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using RabbitSharp.Diagnostics.AspNetCore.Conventions;
 
 namespace RabbitSharp.Diagnostics.Builder
 {
@@ -31,13 +32,13 @@ namespace RabbitSharp.Diagnostics.Builder
                 throw new ArgumentNullException(nameof(requestHandler));
             }
 
-            builder.MappingDelegate = async (context, httpContext) =>
+            builder.BuildAction = conventions =>
             {
-                await requestHandler(httpContext);
-                if (!context.Result.IsHandled)
-                {
-                    context.Result = ExceptionHandlingResult.Handled();
-                }
+                conventions.AddParameterized<RequestHandlerExceptionMappingConvention>(
+                    builder.Tags,
+                    builder.Order,
+                    requestHandler,
+                    builder.CreateConventionPredicateContext());
             };
 
             return builder;

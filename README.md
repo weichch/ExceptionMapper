@@ -1,62 +1,158 @@
 # ExceptionMapper
 
-_I'm still working on the docs, but here is some examples:_
+ExceptionMapper is an extension of _Microsoft.Extensions.DependencyInjection_ which provides ability to build exception handler with strongly-typed settings and conventions.
+
+ExceptionMapper is licensed under the MIT license, so you can feel free to use it in your projects.
+
+## Installation
+
+You can install the latest NuGet packages from [nuget.org](https://www.nuget.org/packages/RabbitSharp.ExceptionMapper/). For ASP.NET Core applications, install the [latest ASP.NET Core package](https://www.nuget.org/packages/RabbitSharp.ExceptionMapper.AspNetCore/).
+
+Also available via console commands:
+
+```
+> dotnet add package RabbitSharp.ExceptionMapper
+> dotnet add package RabbitSharp.ExceptionMapper.AspNetCore
+```
+
+## Basic Usage
+
+Add exception mapping and mapping schemes (exception handler) to your dependency injection container, and then use `IExceptionMapper` in your services.
+
+### Add to Container
 
 ```csharp
-private void ConfigureServices(IServiceCollection services)
-{
-    services.AddExceptionMapping()
-        .AddEndpointResponse(scheme =>
+serviceCollection
+    // Add core services
+    .AddExceptionMapping()
+    // Add ASP.NET Core handler
+    .AddEndpointResponse();
+```
+
+### Add Mapping Conventions
+
+Mapping conventions are configured per scheme. For example, for ASP.NET Core scheme, you can add conventions using fluent convention builder:
+
+```csharp
+services.AddExceptionMapping()
+    .AddEndpointResponse(scheme =>
+    {
+        scheme.MapEndpointExceptions(conventions =>
         {
-            // Map InvalidOperationException to HTTP 402 without response body
-            scheme.MapToStatusCode<InvalidOperationException>(StatusCodes.Status402PaymentRequired);
+            // Map exception to scheme.DefaultConvention
+            conventions.MapException(_ => true);
 
-            // Map InvalidOperationException to another endpoint at "/error",
-            // with custom tags defined on the convention
-            scheme.MapToPath<InvalidOperationException>("/error", tags: new[] {"content"});
+            // Map exception to HTTP response with status code
+            conventions.MapException<InvalidOperationException>()
+                .ToStatusCode(StatusCodes.Status402PaymentRequired);
 
-            // Map InvalidOperationException to a request delegate
-            scheme.MapToRequestDelegate<InvalidOperationException>(
-                async httpContext =>
-                {
+            // Map exception to custom request handler
+            conventions.MapException<InvalidOperationException>()
+                .ToRequestHandler(async httpContext => { });
 
-                });
+            // Map exception to an endpoint at path, and format
+            // path with route values
+            conventions.MapException<InvalidOperationException>()
+                .ToEndpoint("/error/{value}/{custom}", new {custom = "xyz"});
+
+            // Map exception to HTTP response and writes ProblemDetails
+            // to the response body
+            conventions.MapException<InvalidOperationException>()
+                .ToProblemDetails(ctx => ctx.Factory.CreateProblemDetails(
+                    ctx.HttpContext, StatusCodes.Status400BadRequest));
         });
+    });
+```
+
+### Filter Conventions
+
+You can use custom tags to filter conventions. For example, for ASP.NET Core scheme, you could filter conventions using `MapExceptionAttribute`:
+
+```csharp
+services.AddExceptionMapping()
+    .AddEndpointResponse(scheme =>
+    {
+        scheme.MapEndpointExceptions(conventions =>
+        {
+            // Add tags to a convention
+            conventions.MapException(_ => true).UseTags("default");
+        });
+    });
+```
+
+In your controller:
+
+```csharp
+class MyController : Controller
+{
+    [MapException]
+    public IActionResult UseAnyConventions() { }
+
+    [MapException("default")]
+    public IActionResult UseDefaultConvention() { }
+
+    [ExcludeFromExceptionMapping]
+    public IActionResult DoesNotUseAnyConvention() { }
 }
 ```
 
+### Use `IExceptionMapper`
+
 ```csharp
-private void Configure(IApplicationBuilder app, string expectedMessage)
+// Inject IExceptionMapper into controller and handle exception
+class MyController : Controller
+{
+    private readonly IExceptionMapper _exceptionMapper;
+
+    public MyController(IExceptionMapper exceptionMapper)
+    {
+        _exceptionMapper = exceptionMapper;
+    }
+
+    public async Task<IActionResult> Get()
+    {
+        try
+        {
+            throw new Exception();
+        }
+        catch (Exception ex)
+        {
+            var result = await _exceptionMapper.MapAsync(ex);
+            throw;
+        }
+    }
+}
+```
+
+### Use ASP.NET Core Middleware
+
+```csharp
+void Configure(IApplicationBuilder app)
 {
     // Add exception mapping middleware
-    // Exception mapping uses built-in exception handler middleware internally
     app.UseEndpointExceptionMapping();
 
-    // Routing is required by built-in exception handler middleware
     app.UseRouting();
-
-    // Add some dummy endpoints
     app.UseEndpoints(endpoints =>
     {
-        // Add an endpoint which throws InvalidOperationException
-        // Specifies when mapping exception from this endpoint,
-        // only use conventions with "content" tag defined
-        endpoints.MapGet("/throw", async httpContext =>
-        {
-            await Task.Yield();
-            throw new InvalidOperationException(expectedMessage);
-        }).MapException("content");
-
-        // Add an endpoint to re-execute the errored request
-        // Also exclude this endpoint from exception mapping
-        endpoints.MapGet("/error", async httpContext =>
-        {
-            // Data context for exception mapper is available
-            // in IExceptionMappingContextFeature
-            var feature = httpContext.Features.Get<IExceptionMappingContextFeature>();
-            httpContext.Response.StatusCode = StatusCodes.Status402PaymentRequired;
-            await httpContext.Response.WriteAsync(feature.Context!.Exception.Message);
-        }).ExcludeFromExceptionMapping();
+        endpoints.MapControllers();
     });
 }
 ```
+
+## Roadmap
+
+### Features
+
+- Map to named routes
+- Map to named request pipeline
+- Define mapping via metadata attributes
+- Exception filter attributes using `IExceptionMapper`
+
+### Project
+
+- Tidy up this `README.md`
+- Add advanced documentation
+- Add more tests
+- Set up CI/CD
+- Set up contribution documentation

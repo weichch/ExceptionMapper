@@ -1,17 +1,18 @@
 <Project>
   <!-- Common project properties -->
   <PropertyGroup>
-    <LangVersion>latest</LangVersion>
+    <LangVersion>8.0</LangVersion>
     <DebugType>pdbonly</DebugType>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Nullable>enable</Nullable>
     <RootNamespace>RabbitSharp.Diagnostics</RootNamespace>
     <OpenApiGenerateDocuments>false</OpenApiGenerateDocuments>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
   </PropertyGroup>
 
   <!-- Packaging properties -->
   <PropertyGroup>
-    <Version>1.0.0-preview.1.1</Version>
+    <Version>1.0.0</Version>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
     <Authors>Wei Chen</Authors>

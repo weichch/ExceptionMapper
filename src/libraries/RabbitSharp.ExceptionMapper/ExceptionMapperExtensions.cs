@@ -9,6 +9,23 @@ namespace RabbitSharp.Diagnostics
     public static class ExceptionMapperExtensions
     {
         /// <summary>
+        /// Executes registered exception mapping schemes and returns an <see cref="ExceptionHandlingResult"/>.
+        /// </summary>
+        /// <param name="mapper">The exception mapper.</param>
+        /// <param name="exception">The exception to handle.</param>
+        public static Task<ExceptionHandlingResult> MapAsync(
+            this IExceptionMapper mapper,
+            Exception exception)
+        {
+            if (mapper == null)
+            {
+                throw new ArgumentNullException(nameof(mapper));
+            }
+
+            return mapper.MapAsync(exception, null);
+        }
+
+        /// <summary>
         /// Handles exception using registered schemes and executes the handling result.
         /// </summary>
         /// <param name="mapper">The exception mapper.</param>
